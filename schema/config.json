@@ -1,0 +1,56 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "properties": {
+    "server": {
+      "$id": "/properties/server",
+      "type": "object",
+      "properties": {
+        "port": {
+          "$id": "/properties/server/properties/port",
+          "type": "string",
+          "title": "Port to listen on",
+          "description": "Port to listen on",
+          "default": "",
+          "examples": [
+            "4200"
+          ]
+        }
+      }
+    },
+    "storage": {
+      "$id": "/properties/storage",
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "$id": "/properties/storage/properties/dsn",
+          "type": "string",
+          "title": "Dsn for config storage.",
+          "description": "Must be a mongo dsn",
+          "default": "",
+          "examples": [
+            "mongodb://localhost/uniapi"
+          ]
+        }
+      }
+    },
+    "client": {
+      "$id": "/properties/client",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "$id": "/properties/client/properties/enabled",
+          "type": "boolean",
+          "title": "Enable built in config client",
+          "description": "The client will be available under ~/config/client/",
+          "default": false,
+          "examples": [
+            true
+          ]
+        }
+      }
+    }
+  }
+}
