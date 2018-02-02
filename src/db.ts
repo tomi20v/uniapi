@@ -2,13 +2,6 @@ import * as defaultConfig from '../defaultConfig.json';
 import {Observable} from "rxjs";
 const rxMongoExports = require('rxmongo');
 const RxMongo = rxMongoExports.RxMongo;
-const RxCollection = rxMongoExports.RxCollection;
-const ObjectID = rxMongoExports.ObjectID;
-
-// RxCollection.prototype.findById = function(id){
-//     console.log('PATCHED', id);
-//     return this.find(ObjectID(id)).first();
-// };
 
 export const rxMongoDbStream = RxMongo.connect((<any>defaultConfig).storage.dsn);
 rxMongoDbStream

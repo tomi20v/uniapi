@@ -1,9 +1,9 @@
-import {AbstractSchema} from "./AbstractSchema";
+import {AbstractSchema} from "../../model/AbstractSchema";
 
-export class Schema extends AbstractSchema {
+export class EntitySchema extends AbstractSchema {
 
-    static fromDb(data: any): Schema {
-        return new Schema(
+    static fromDb(data: any): EntitySchema {
+        return new EntitySchema(
             data._id,
             data._$schema,
             data.title,

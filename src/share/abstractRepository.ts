@@ -6,7 +6,7 @@ const RxMongo = require('rxmongo');
 const ObjectID = require('mongodb').ObjectID;
 const _ = require('lodash');
 
-export abstract class RepositoryAbstract {
+export abstract class AbstractRepository {
 
     protected abstract mongoCollectionName: string;
     protected abstract factory: CallableInterface<any>;
@@ -20,6 +20,7 @@ export abstract class RepositoryAbstract {
     }
 
     findById(id: string): Observable<any> {
+
         return this.rxCollection
             .flatMap(
                 rxCollection => rxCollection
@@ -28,6 +29,7 @@ export abstract class RepositoryAbstract {
                     // .find(ObjectID(id))
                     .map(objData => objData ? this.factory(objData) : null)
             )
+
     }
 
     find(filter: any): Observable<any> {
@@ -52,16 +54,19 @@ export abstract class RepositoryAbstract {
     }
 
     remove(id: string) {
+
         return this.rxCollection
             .flatMap(
                 rxCollection => {
                     return rxCollection.deleteById(id)
                 }
             );
+
     }
 
     // replace<T>(id: string, data: T): Observable<T> {
     replace<T>(id: string, data: T): Observable<T> {
+
         return this.rxCollection
             .flatMap(
                 rxCollection => {
@@ -74,9 +79,11 @@ export abstract class RepositoryAbstract {
                 }
                 return data;
             });
+
     }
 
     protected _create(obj: any) {
+
         return this.rxCollection
             .flatMap(rxCollection => rxCollection.insert(
                 _.extend(
@@ -89,6 +96,7 @@ export abstract class RepositoryAbstract {
                     _.omit(obj, ['id', 'tstamp', 'crstamp'])
                 )
             ));
+
     }
 
 }

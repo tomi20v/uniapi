@@ -1,7 +1,7 @@
 import {Router, Request, Response} from "express";
 import {Rest} from "../share/rest";
 import {entityRepository, pluginRepository, schemaRepository} from "./repositories";
-import {Entity} from "../model/Entity";
+import {EntityConfig} from "./model/EntityConfig";
 import * as merge from "merge";
 
 const configRouter: Router = Router();
@@ -9,7 +9,7 @@ const configRouter: Router = Router();
 /**
  * @todo this should be a plugin
  */
-function entityWithUri(entity: Entity) {
+function entityWithUri(entity: EntityConfig) {
     return merge({}, entity, {_uri: '/entity/' + entity._id});
 }
 
@@ -39,7 +39,7 @@ configRouter
         Rest.subscribeToOne(
             entityRepository
                 .findOne({_id: request.params.id})
-                .map((e: Entity) => entityWithUri(e)),
+                .map((e: EntityConfig) => entityWithUri(e)),
             response
         )
     )

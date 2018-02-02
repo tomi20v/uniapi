@@ -1,14 +1,14 @@
-import {Entity} from "../model/Entity";
-import {RepositoryAbstract} from "../share/repositoryAbstract";
+import {EntityConfig} from "./model/EntityConfig";
+import {AbstractRepository} from "../share/abstractRepository";
 import {CallableInterface} from "../share/callableInterface";
 
-export class EntityRepository extends RepositoryAbstract {
+export class EntityRepository extends AbstractRepository {
 
     mongoCollectionName: string = 'ua_entity';
 
-    factory: CallableInterface<any> = Entity.fromDb;
+    factory: CallableInterface<any> = EntityConfig.fromDb;
 
-    create(entity: Entity) {
+    create(entity: EntityConfig) {
         return this._create(entity);
     }
 

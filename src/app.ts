@@ -1,67 +1,117 @@
-import {configRouter} from "./config/routes";
-import * as defaultConfig from '../defaultConfig.json';
 import * as express from 'express';
 import * as bodyParser from "body-parser";
+import {pluginManager} from "./plugins/plugins";
+import {Observable} from "rxjs/Observable";
+import {PluginEventInterface} from "./plugins/PluginEventInterface";
+import {Subject} from "rxjs/Subject";
+import {ServerConfig} from "./ServerConfig";
+import {EntityRouter} from "./entity/EntityRouter";
 // import * as compression from 'compression';
 const morgan = require('morgan');
 
-function normalizePort(val): boolean | number {
+pluginManager.constructor;
 
-    const normalizedPort = parseInt(val, 10);
+export class UniApiApp {
 
-    if (isNaN(normalizedPort)) {
-        // named pipe
-        return val;
+    private eventEmitter: Subject<PluginEventInterface>;
+
+    constructor(
+        public expressApp: express.Application,
+        private serverConfig: ServerConfig,
+        private configRouter: express.Router,
+        private entityRouter: EntityRouter
+    ){
+        this.eventEmitter = new Subject();
     }
 
-    if (normalizedPort >= 0) {
-        // port number
-        return normalizedPort;
+    serverEvents(): Observable<PluginEventInterface> {
+        return this.eventEmitter;
     }
 
-    return false;
+    public init() {
+
+        this.expressApp.disable('x-powered-by');
+
+        this.expressApp.use(bodyParser.json());
+        // expressApp.use(compression());
+        this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+
+        this.initRequestLogging();
+
+        this.initPort();
+        this.initClient();
+
+        this.initRouting();
+
+        this.initErrorHandling();
+
+        this.eventEmitter.next(<PluginEventInterface>{
+            eventName: 'server.ready',
+            pluginConfig: {}
+        });
+
+    }
+
+    private initPort() {
+        const configPort = this.serverConfig.defaultConfig.server.port;
+        const port = this.normalizePort(process.env.PORT || configPort);
+        this.expressApp.set('port', port);
+    }
+
+    private normalizePort(val): boolean | number {
+        const normalizedPort = parseInt(val, 10);
+        if (isNaN(normalizedPort)) {
+            // named pipe
+            return val;
+        }
+        if (normalizedPort >= 0) {
+            // port number
+            return normalizedPort;
+        }
+        return false;
+    }
+
+    private initClient() {
+        // serve client files if enabled
+        if (this.serverConfig.defaultConfig.client.enabled) {
+            this.expressApp.use('/config/client/about', express.static('node_modules/uniapi-config-client/dist'));
+            this.expressApp.use('/config/client/entities', express.static('node_modules/uniapi-config-client/dist'));
+            this.expressApp.use('/config/client/entity/*', express.static('node_modules/uniapi-config-client/dist'));
+            this.expressApp.use('/config/client', express.static('node_modules/uniapi-config-client/dist'));
+            console.log('client enabled');
+        }
+    }
+
+    private initRouting() {
+        this.expressApp.use('/config', this.configRouter);
+        this.expressApp.use('/rest', (req: express.Request, res: express.Response, next) => this.entityRouter.handle(req, res, next));
+    }
+
+    private initErrorHandling() {
+
+        // catch 404 and forward to error handler
+        this.expressApp.use(function(req: express.Request, res: express.Response, next) {
+            let err = new Error('Not Found');
+            next(err);
+        });
+
+        // production error handler
+        // no stacktrace leaked to user
+        this.expressApp.use(function(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
+
+            res.status(err.status || 500);
+            res.json({
+                error: {},
+                message: err.message
+            });
+
+        });
+
+    }
+
+    private initRequestLogging() {
+        if (this.serverConfig.defaultConfig.server.useMorgan) {
+            this.expressApp.use(morgan('dev'));
+        }
+    }
 }
-
-const app: express.Application = express();
-
-app.disable('x-powered-by');
-
-app.use(bodyParser.json());
-// app.use(compression());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(morgan('dev'));
-
-const configPort = (<any>defaultConfig).server.port;
-const port = normalizePort(process.env.PORT || configPort);
-app.set('port', port);
-
-// serve client files if enabled
-if ((<any>defaultConfig).client.enabled) {
-    app.use('/config/client/about', express.static('node_modules/uniapi-config-client/dist'));
-    app.use('/config/client/entities', express.static('node_modules/uniapi-config-client/dist'));
-    app.use('/config/client/entity/*', express.static('node_modules/uniapi-config-client/dist'));
-    app.use('/config/client', express.static('node_modules/uniapi-config-client/dist'));
-    console.log('client enabled');
-}
-
-// app.use('/api/public', publicRouter);
-app.use('/config', configRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req: express.Request, res: express.Response, next) {
-    let err = new Error('Not Found');
-    next(err);
-});
-
-// production error handler
-// no stacktrace leaked to user
-app.use(function(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
-
-    res.status(err.status || 500);
-    res.json({
-        error: {},
-        message: err.message
-    });
-});
-
-export { app }

@@ -1,4 +1,7 @@
-export class Entity {
+/**
+ * this is NOT an entity but the meta info for the entity
+ */
+export class EntityConfig {
 
     constructor(
         public _id: string,
@@ -9,7 +12,7 @@ export class Entity {
     ) {}
 
     static fromDb(data: any) {
-        return new Entity(
+        return new EntityConfig(
             data._id,
             data.name,
             data.schema,

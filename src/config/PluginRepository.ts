@@ -1,15 +1,15 @@
-import {RepositoryAbstract} from "../share/repositoryAbstract";
+import {AbstractRepository} from "../share/abstractRepository";
 import {CallableInterface} from "../share/callableInterface";
-import {Plugin} from "../model/Plugin";
+import {PluginConfigSchema} from "./model/PluginConfigSchema";
 import {Observable} from "rxjs/Rx";
 
-export class PluginRepository extends RepositoryAbstract {
+export class PluginRepository extends AbstractRepository {
 
     mongoCollectionName: string = 'ua_plugin';
 
-    factory: CallableInterface<any> = Plugin.fromDb;
+    factory: CallableInterface<any> = PluginConfigSchema.fromDb;
 
-    create(plugin: Plugin) {
+    create(plugin: PluginConfigSchema) {
         return this._create(plugin);
     }
 
