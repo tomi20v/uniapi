@@ -1,4 +1,4 @@
-import * as defaultConfig from '../defaultConfig.json';
+import * as defaultConfig from '../../config/server.json';
 import {ServerConfigInterface} from "./ServerConfigInterface";
 
 export class ServerConfig {

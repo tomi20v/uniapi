@@ -1,6 +1,5 @@
 import {PluginInterface} from "./PluginInterface";
 import {AbstractSchema} from "../model/AbstractSchema";
-import {Observable} from "rxjs/Observable";
 
 export class PluginManager {
 

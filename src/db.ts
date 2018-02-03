@@ -1,4 +1,4 @@
-import * as defaultConfig from '../defaultConfig.json';
+import * as defaultConfig from '../config/server.json';
 import {Observable} from "rxjs";
 const rxMongoExports = require('rxmongo');
 const RxMongo = rxMongoExports.RxMongo;

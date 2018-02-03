@@ -1,34 +1,26 @@
 import * as express from 'express';
 import * as bodyParser from "body-parser";
 import {pluginManager} from "./plugins/plugins";
-import {Observable} from "rxjs/Observable";
-import {PluginEventInterface} from "./plugins/PluginEventInterface";
 import {Subject} from "rxjs/Subject";
-import {ServerConfig} from "./ServerConfig";
+import {ServerConfig} from "./server/ServerConfig";
 import {EntityRouter} from "./entity/EntityRouter";
+import {ServerEventInterface} from "./server/ServerEventInterface";
 // import * as compression from 'compression';
 const morgan = require('morgan');
 
-pluginManager.constructor;
-
 export class UniApiApp {
-
-    private eventEmitter: Subject<PluginEventInterface>;
 
     constructor(
         public expressApp: express.Application,
         private serverConfig: ServerConfig,
         private configRouter: express.Router,
-        private entityRouter: EntityRouter
-    ){
-        this.eventEmitter = new Subject();
-    }
-
-    serverEvents(): Observable<PluginEventInterface> {
-        return this.eventEmitter;
-    }
+        private entityRouter: EntityRouter,
+        private serverSubject: Subject<ServerEventInterface>
+    ) {}
 
     public init() {
+
+        pluginManager.constructor;
 
         this.expressApp.disable('x-powered-by');
 
@@ -45,9 +37,9 @@ export class UniApiApp {
 
         this.initErrorHandling();
 
-        this.eventEmitter.next(<PluginEventInterface>{
+        this.serverSubject.next(<ServerEventInterface>{
             eventName: 'server.ready',
-            pluginConfig: {}
+            data: 'UniApiApp'
         });
 
     }
