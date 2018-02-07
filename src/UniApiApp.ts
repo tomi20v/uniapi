@@ -1,51 +1,64 @@
 import * as express from 'express';
 import * as bodyParser from "body-parser";
-import {pluginManager} from "./plugins/plugins";
 import {Subject} from "rxjs/Subject";
-import {ServerConfig} from "./server/ServerConfig";
+import {ConfigManager} from "./server/ConfigManager";
 import {EntityRouter} from "./entity/EntityRouter";
-import {ServerEventInterface} from "./server/ServerEventInterface";
+import {AppConfig} from "./config/model/AppConfig";
+import {PluginManager} from "./plugins/PluginManager";
+import {ServerConfigInterface} from "./server/ServerConfigInterface";
 // import * as compression from 'compression';
-const morgan = require('morgan');
 
 export class UniApiApp {
 
     constructor(
         public expressApp: express.Application,
-        private serverConfig: ServerConfig,
+        public appSubject: Subject<express.Application>,
+        private configManager: ConfigManager,
+        private pluginManager: PluginManager,
         private configRouter: express.Router,
-        private entityRouter: EntityRouter,
-        private serverSubject: Subject<ServerEventInterface>
+        private entityRouter: EntityRouter
     ) {}
 
     public init() {
 
-        pluginManager.constructor;
+        this.configManager.serverConfig.subscribe(
+            (serverConfig: ServerConfigInterface) => {
+                // this.appConfigRepository.find({})
 
-        this.expressApp.disable('x-powered-by');
+                this.expressApp.disable('x-powered-by');
 
-        this.expressApp.use(bodyParser.json());
-        // expressApp.use(compression());
-        this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+                this.expressApp.use(bodyParser.json());
+                // expressApp.use(compression());
+                this.expressApp.use(bodyParser.urlencoded({ extended: false }));
 
-        this.initRequestLogging();
+                this.initRequestLogging(serverConfig);
 
-        this.initPort();
-        this.initClient();
+                this.initPort(serverConfig);
+                this.initClient(serverConfig);
 
-        this.initRouting();
+                this.initRouting();
 
-        this.initErrorHandling();
+                this.initErrorHandling();
 
-        this.serverSubject.next(<ServerEventInterface>{
-            eventName: 'server.ready',
-            data: 'UniApiApp'
-        });
+                this.configManager.appConfigStream
+                    .delay(2000)
+                    .subscribe((appConfig: AppConfig) => {
+                        if (appConfig === null) {
+                            throw 'app config not found';
+                        }
+                        this.pluginManager.registerGlobalPluginConfigs(appConfig.plugins);
+                        this.appSubject.next(this.expressApp);
+                    });
+
+            }
+        )
+
+        return this.appSubject;
 
     }
 
-    private initPort() {
-        const configPort = this.serverConfig.defaultConfig.server.port;
+    private initPort(serverConfig: ServerConfigInterface) {
+        const configPort = serverConfig.server.port;
         const port = this.normalizePort(process.env.PORT || configPort);
         this.expressApp.set('port', port);
     }
@@ -63,9 +76,9 @@ export class UniApiApp {
         return false;
     }
 
-    private initClient() {
+    private initClient(serverConfig: ServerConfigInterface) {
         // serve client files if enabled
-        if (this.serverConfig.defaultConfig.client.enabled) {
+        if (serverConfig.client.enabled) {
             this.expressApp.use('/config/client/about', express.static('node_modules/uniapi-config-client/dist'));
             this.expressApp.use('/config/client/entities', express.static('node_modules/uniapi-config-client/dist'));
             this.expressApp.use('/config/client/entity/*', express.static('node_modules/uniapi-config-client/dist'));
@@ -101,9 +114,11 @@ export class UniApiApp {
 
     }
 
-    private initRequestLogging() {
-        if (this.serverConfig.defaultConfig.server.useMorgan) {
+    private initRequestLogging(serverConfig: ServerConfigInterface) {
+        if (serverConfig.server.useMorgan) {
+            const morgan = require('morgan');
             this.expressApp.use(morgan('dev'));
         }
     }
+
 }

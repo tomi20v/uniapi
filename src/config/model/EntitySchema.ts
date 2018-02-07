@@ -5,7 +5,7 @@ export class EntitySchema extends AbstractSchema {
     static fromDb(data: any): EntitySchema {
         return new EntitySchema(
             data._id,
-            data._$schema,
+            data.$schema,
             data.title,
             data.type,
             data.properties,

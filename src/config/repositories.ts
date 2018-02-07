@@ -1,8 +1,10 @@
 import {rxMongoDbStream} from "../db";
-import {EntityRepository} from "./EntityRepository";
+import {EntityConfigRepository} from "./EntityConfigRepository";
 import {SchemaRepository} from "./SchemaRepository";
-import {PluginRepository} from "./PluginRepository";
+import {PluginConfigSchemaRepository} from "./PluginConfigSchemaRepository";
+import {AppConfigRepository} from "./AppConfigRepository";
 
-export const entityRepository = new EntityRepository(rxMongoDbStream);
-export const schemaRepository = new SchemaRepository(rxMongoDbStream);
-export const pluginRepository = new PluginRepository(rxMongoDbStream);
+export const entityConfigRepository = new EntityConfigRepository(rxMongoDbStream);
+export const entitySchemaRepository = new SchemaRepository(rxMongoDbStream);
+export const pluginConfigSchemaRepository = new PluginConfigSchemaRepository(rxMongoDbStream);
+export const appConfigRepository = new AppConfigRepository(rxMongoDbStream);

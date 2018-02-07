@@ -9,7 +9,9 @@
     "lint": "tslint \"src/**/*.ts\"",
     "test": "ng test --watch=false",
     "build": "npm run _server:build",
-    "serve": "nodemon dist/server.js",
+    "serve": "nodemon dist/example/server.js",
+    "initdb": "tsc -p ./src && node dist/initdb.js",
+    "initdb-dev": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"nodemon dist/initdb.js\" ",
     "_server:run": "tsc -p ./src && concurrently \"tsc -w -p ./src\" \"nodemon dist/example/server.js\" ",
     "_server:build": "tsc -p ./src",
     "postinstall": "npm run build"

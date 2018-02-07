@@ -1,7 +1,7 @@
 export class Context {
 
     constructor(
-        public originalPath,
+        public readonly originalPath,
         public currentPath
     ) {}
 

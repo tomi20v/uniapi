@@ -1,0 +1,143 @@
+[
+  {
+    "$id": "$address",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "template: Address",
+    "definitions": {},
+    "type": "object",
+    "properties": {
+      "name": {
+        "$id": "/properties/name",
+        "type": "string",
+        "title": "Name and surname or company name",
+        "examples": [
+          "John"
+        ]
+      },
+      "countryCode": {
+        "$id": "/properties/countryCode",
+        "type": "string",
+        "title": "Countrycode",
+        "description": "ISO alpha-2 (or alpha-3, just be consistent)",
+        "examples": [
+          "ES"
+        ],
+        "pattern": "/^[A-Z]{2,3}$/"
+      },
+      "city": {
+        "$id": "/properties/city",
+        "type": "string",
+        "title": "City",
+        "default": "",
+        "examples": [
+          "Madrid"
+        ]
+      },
+      "street": {
+        "$id": "/properties/street",
+        "type": "string",
+        "title": "Street name, house number",
+        "default": "",
+        "examples": [
+          "Via Madrid 8"
+        ]
+      },
+      "street2": {
+        "$id": "/properties/street2",
+        "type": "string",
+        "title": "Street, continued",
+        "default": "",
+        "examples": [
+          "apt 42"
+        ]
+      },
+      "zip": {
+        "$id": "/properties/zip",
+        "type": "string",
+        "title": "Zip code",
+        "default": "",
+        "examples": [
+          "12345"
+        ]
+      },
+      "phone": {
+        "$id": "/properties/phone",
+        "type": "string",
+        "title": "Phone number",
+        "default": "",
+        "examples": [
+          "+1555123456"
+        ],
+        "pattern": "/^\\+?\\d+$/"
+      },
+      "comment": {
+        "$id": "/properties/comment",
+        "type": "string",
+        "title": "Any comment",
+        "default": ""
+      }
+    },
+    "required": [
+      "name",
+      "surname",
+      "countryCode",
+      "city",
+      "street",
+      "zip"
+    ]
+  },
+  {
+      "$id": "$user",
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {},
+      "title": "template: User",
+      "type": "object",
+      "properties": {
+        "email": {
+          "$id": "/properties/email",
+          "type": "string",
+          "title": "Email",
+          "default": "",
+          "examples": [
+            "no@ema.il"
+          ]
+        },
+        "username": {
+          "$id": "/properties/username",
+          "type": "string",
+          "title": "Username",
+          "default": "",
+          "examples": [
+            "iamtom"
+          ]
+        },
+        "password": {
+          "$id": "/properties/password",
+          "type": "string",
+          "title": "Password",
+          "default": "",
+          "examples": [
+            "123456"
+          ]
+        },
+        "lastLogin": {
+          "$id": "/properties/lastLogin",
+          "type": "integer",
+          "title": "Last login time",
+          "default": 0,
+          "examples": [
+            1605093071
+          ]
+        },
+        "some": {
+          "$id": "/properties/some",
+          "type": "string",
+          "title": "Some example field",
+          "default": "",
+          "examples": [
+            "field"
+          ]
+        }
+      }
+    }
+]

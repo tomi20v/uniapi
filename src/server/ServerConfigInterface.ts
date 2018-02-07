@@ -1,10 +1,11 @@
 import {EntityRouter} from "../entity/EntityRouter";
-import {ServerConfig} from "./ServerConfig";
-import {UniApiApp} from "../app";
+import {ConfigManager} from "./ConfigManager";
+import {UniApiApp} from "../UniApiApp";
 import * as express from "express";
 import {ServerEventInterface} from "./ServerEventInterface";
 import {Subject} from "rxjs/Subject";
 import {EntityManager} from "../entity/EntityManager";
+import {PluginManager} from "../plugins/PluginManager";
 
 interface ServerInterface {
     port: number;
@@ -19,7 +20,9 @@ interface ClientInterface {
 interface DepsInterface {
     serverSubject?: Subject<ServerEventInterface>;
     expressApp?: express.Application;
-    serverConfig?: ServerConfig;
+    appSubject?: Subject<express.Application>;
+    configManager?: ConfigManager;
+    pluginManager?: PluginManager;
     configRouter?: express.Router;
     entityManager?: EntityManager;
     entityRouter?: EntityRouter;

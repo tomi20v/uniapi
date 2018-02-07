@@ -5,7 +5,7 @@ export class PluginConfigSchema extends AbstractSchema {
     static fromDb(data: any): PluginConfigSchema {
         return new PluginConfigSchema(
             data._id,
-            data._$schema,
+            data.$schema,
             data.title,
             data.type,
             data.properties,

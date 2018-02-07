@@ -1,8 +1,8 @@
-import {PluginConfigInterface} from "./PluginConfigInterface";
+import {Context} from "./Context";
 
 export interface PluginEventInterface {
     eventName: string;
-    pluginConfig: PluginConfigInterface;
     value?: any;
     oldValue?: any;
+    context?: Context;
 }

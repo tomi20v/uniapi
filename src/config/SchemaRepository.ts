@@ -13,8 +13,8 @@ export class SchemaRepository extends AbstractRepository {
         return this._create(schema);
     }
 
-    findById(id: string): Observable<any> {
-        return this.findOne({_id: id});
+    protected _idField() {
+        return '$id';
     }
 
 }

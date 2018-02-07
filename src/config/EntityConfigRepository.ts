@@ -2,7 +2,7 @@ import {EntityConfig} from "./model/EntityConfig";
 import {AbstractRepository} from "../share/abstractRepository";
 import {CallableInterface} from "../share/callableInterface";
 
-export class EntityRepository extends AbstractRepository {
+export class EntityConfigRepository extends AbstractRepository {
 
     mongoCollectionName: string = 'ua_entity';
 

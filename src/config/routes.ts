@@ -1,6 +1,6 @@
 import {Router, Request, Response} from "express";
 import {Rest} from "../share/rest";
-import {entityRepository, pluginRepository, schemaRepository} from "./repositories";
+import {entityConfigRepository, pluginConfigSchemaRepository, entitySchemaRepository} from "./repositories";
 import {EntityConfig} from "./model/EntityConfig";
 import * as merge from "merge";
 
@@ -20,7 +20,7 @@ configRouter.get('/', (request: Request, response: Response) =>
 configRouter
     .get('/entity/', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            entityRepository
+            entityConfigRepository
                 .find({})
                 .map(e => entityWithUri(e))
                 .toArray(),
@@ -29,7 +29,7 @@ configRouter
     )
     .post('/entity/', (request: Request, response: Response) =>
         // Rest.subscribeToOne(
-        //     entityRepository.create()
+        //     entityConfigRepository.create()
         // )
         response.json([request.param('name'), request.body])
     );
@@ -37,7 +37,7 @@ configRouter
 configRouter
     .get('/entity/:id', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            entityRepository
+            entityConfigRepository
                 .findOne({_id: request.params.id})
                 .map((e: EntityConfig) => entityWithUri(e)),
             response
@@ -45,7 +45,7 @@ configRouter
     )
     .put('/entity/:id', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            entityRepository.replace(request.params.id, request.body),
+            entityConfigRepository.replace(request.params.id, request.body),
             response
         )
     );
@@ -53,7 +53,7 @@ configRouter
 configRouter
     .get('/schema/', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            schemaRepository.find({}).toArray(),
+            entitySchemaRepository.find({}).toArray(),
             response
         )
     );
@@ -61,7 +61,7 @@ configRouter
 configRouter
     .get('/schema/:id', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            schemaRepository.find({}).toArray(),
+            entitySchemaRepository.find({}).toArray(),
             response
         )
     );
@@ -69,7 +69,7 @@ configRouter
 configRouter
     .get('/plugin/', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            pluginRepository
+            pluginConfigSchemaRepository
                 .find({})
                 .toArray(),
             response
@@ -79,7 +79,7 @@ configRouter
 configRouter
     .get('/plugin/:id', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            pluginRepository
+            pluginConfigSchemaRepository
                 .findById(request.params.id),
             response
         )
@@ -88,7 +88,7 @@ configRouter
 configRouter
     .get('/schema/:id', (request: Request, response: Response) =>
         Rest.subscribeToOne(
-            schemaRepository
+            entitySchemaRepository
                 .findById(request.params.id),
             response
         )

@@ -11,7 +11,16 @@ rxMongoDbStream
         console.log('mongo connect ERR', err);
     });
 
+interface InsertCommandResultInner {
+    ok: number;
+    n: number;
+}
 export interface InsertCommandResult {
+    result: InsertCommandResultInner;
+    connection: any;
+    message: any;
+    ops: any;
+    insertedCont: number;
     insertedId: string;
 }
 interface UpdateCommandResultInner {

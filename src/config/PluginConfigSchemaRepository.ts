@@ -3,7 +3,7 @@ import {CallableInterface} from "../share/callableInterface";
 import {PluginConfigSchema} from "./model/PluginConfigSchema";
 import {Observable} from "rxjs/Rx";
 
-export class PluginRepository extends AbstractRepository {
+export class PluginConfigSchemaRepository extends AbstractRepository {
 
     mongoCollectionName: string = 'ua_plugin';
 
@@ -13,8 +13,8 @@ export class PluginRepository extends AbstractRepository {
         return this._create(plugin);
     }
 
-    findById(id: string): Observable<any> {
-        return this.findOne({_id: id});
+    protected _idField() {
+        return '$id';
     }
 
 }

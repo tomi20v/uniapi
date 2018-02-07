@@ -1,0 +1,10 @@
+[
+  {
+    "_id": "$appConfig",
+    "serverName": "uniapi server",
+    "version": "1",
+    "plugins": [],
+    "tstamp": null,
+    "crstamp": null
+  }
+]

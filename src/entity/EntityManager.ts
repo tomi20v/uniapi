@@ -1,21 +1,17 @@
-import {EntityRepository} from "../config/EntityRepository";
+import {EntityConfigRepository} from "../config/EntityConfigRepository";
 import {SchemaRepository} from "../config/SchemaRepository";
 import {EntityConfig} from "../config/model/EntityConfig";
-import {ServerEventInterface} from "../server/ServerEventInterface";
 import {Subject} from "rxjs/Subject";
 import {EntitySchema} from "../config/model/EntitySchema";
 
 export class EntityManager {
 
-    private entityConfigs: EntityConfig[] = [];
+    private entityConfigs: Subject<EntityConfig> = new Subject<EntityConfig>();
 
     constructor(
-        private entityConfigRepository: EntityRepository,
-        private schemaRepository: SchemaRepository,
-        private serverSubject: Subject<ServerEventInterface>
-    ) {}
-
-    public init() {
+        private entityConfigRepository: EntityConfigRepository,
+        private schemaRepository: SchemaRepository
+    ) {
         this.entityConfigRepository.find({})
             .flatMap((entityConfig: EntityConfig) => {
                 return this.schemaRepository.find({_id: entityConfig.schema})
@@ -26,18 +22,13 @@ export class EntityManager {
             })
             .subscribe(
                 (entityConfig: any) => {
-                    //console.log('entity', entityConfig)
-                    this.entityConfigs.push(entityConfig);
+                    this.entityConfigs.next(entityConfig);
                 },
                 e => {throw e},
                 () => {
-                    // emit entityManager.ready or similar
                     console.log('entity configs loaded');
-                    this.serverSubject.next(<ServerEventInterface>{
-                        eventName: 'server.ready',
-                        data: 'EntityManager'
-                    });
                 }
             );
     }
+
 }

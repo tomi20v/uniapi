@@ -1,0 +1,33 @@
+[
+  {
+    "_id" : "$address",
+    "name" : "Address",
+    "plugins": [
+      {
+        "pluginId": "$timestamp",
+        "description": "only crstamp",
+        "onCreate": true,
+        "onCreateField": "crstampx",
+        "onUpdate": false
+      },
+      {
+        "pluginId": "$timestamp",
+        "description": "only tstamp",
+        "onCreate": false,
+        "onUpdate": true,
+        "onUpdateField": "tstampx"
+      }
+    ],
+    "schema" : "$address",
+    "crstamp": 1515290100,
+    "tstamp": 1515290200
+  },
+  {
+    "_id" : "$user",
+    "name" : "User",
+    "plugins": [],
+    "schema" : "$user",
+    "crstamp": 1515260100,
+    "tstamp": 1515260200
+  }
+]
