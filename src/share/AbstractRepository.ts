@@ -1,6 +1,7 @@
 import {Observable} from "rxjs"
-import {RxCollectionInterface, UpdateCommandResult} from "../db"
-import {CallableInterface} from "./callableInterface"
+import {InsertCommandResult, RxCollectionInterface, UpdateCommandResult} from "../db"
+import {CallableInterface} from "./CallableInterface"
+import {FieldNameCleaner} from "./FieldNameCleaner";
 
 const RxMongo = require('rxmongo');
 const _ = require('lodash');
@@ -12,68 +13,64 @@ export abstract class AbstractRepository {
 
     rxCollection: Observable<RxCollectionInterface>;
 
-    constructor(rxMongoDbStream: Observable<RxCollectionInterface>) {
+    constructor(
+        private rxMongoDbStream: Observable<RxCollectionInterface>,
+        private fieldNameCleaner: FieldNameCleaner
+    ) {
         this.rxCollection = rxMongoDbStream.map(
             db => new RxMongo.RxCollection(this.mongoCollectionName)
         );
     }
 
     findById(id: string): Observable<any> {
-
         return this.rxCollection
             .flatMap(rxCollection => rxCollection
                 .findOne({_id: id})
             )
             .map(objData => objData
-                ? this.factory(this._restoreFieldNames(objData))
+                ? this.factory(this.fieldNameCleaner.restoreFieldNames(objData))
                 : null
             );
     }
 
     find(filter: any): Observable<any> {
-
         return this.rxCollection
             .flatMap(rxCollection => rxCollection
                 .find(filter).toArray()
             )
             .flatMap(r => r)
             .map(objData => objData
-                ? this.factory(this._restoreFieldNames(objData))
-                : null)
-
+                ? this.factory(this.fieldNameCleaner.restoreFieldNames(objData))
+                : null
+            );
     }
 
-    findOne(filter: any) {
-
+    findOne<T>(filter: T): Observable<T> {
         return this.rxCollection
             .flatMap(rxCollection => rxCollection
                 .findOne(filter)
                 .map(objData => objData
-                    ? this.factory(this._restoreFieldNames(objData))
+                    ? this.factory(this.fieldNameCleaner.restoreFieldNames(objData))
                     : null)
-            )
-
+            );
     }
 
-    remove(id: string) {
-
+    remove(id: string): Observable<boolean> {
         return this.rxCollection
             .flatMap(rxCollection =>
                 rxCollection.deleteOne({_id: id})
             )
             .map((commandResult: any) => commandResult.deletedCount == 1)
-
     }
 
     replace<T>(id: string, data: T): Observable<T> {
-
         return this.rxCollection
             .flatMap(rxCollection => rxCollection
                 .updateOne(
                     {_id: id},
                     _.extend(
                         {_id: data[this._idField()]},
-                        this._clearFieldNames(_.omit(data, this._idField())),
+                        this.fieldNameCleaner.clearFieldNames(_.omit(data, this._idField())),
                         {
                             _type: data.constructor.name,
                             tstamp: new Date(),
@@ -88,7 +85,6 @@ export abstract class AbstractRepository {
                 }
                 return data;
             });
-
     }
 
     protected _create(obj: any) {
@@ -97,7 +93,7 @@ export abstract class AbstractRepository {
             .flatMap(rxCollection => rxCollection.insert(
                 _.extend(
                     {_id: obj[this._idField()]},
-                    this._clearFieldNames(_.omit(obj, [this._idField()])),
+                    this.fieldNameCleaner.clearFieldNames(_.omit(obj, [this._idField()])),
                     {
                         _type: obj.constructor.name,
                         tstamp: t,
@@ -105,36 +101,10 @@ export abstract class AbstractRepository {
                     }
                 )
             ))
-            .map(commandResult => obj);
-
-    }
-
-    protected _clearFieldNames(obj: any) {
-        let ret = {};
-        for (let i in obj) {
-            if (obj.hasOwnProperty(i)) {
-                let clearKey = i[0] == '$' ? '_'+i : i;
-                ret[clearKey] = _.isObject(obj[i])
-                    ? this._clearFieldNames(obj[i])
-                    : obj[i];
-            }
-        }
-        return ret;
-    }
-
-    protected _restoreFieldNames(obj: any) {
-        let ret = {};
-        for (let i in obj) {
-            if (obj.hasOwnProperty(i)) {
-                let restoredKey = i.substr(0, 2) === '_$'
-                    ? i.substr(1)
-                    : i;
-                ret[restoredKey] = _.isObject(obj[i])
-                    ? this._restoreFieldNames(obj[i])
-                    : obj[i];
-            }
-        }
-        return ret;
+            .map((commandResult: InsertCommandResult) => {
+                obj[this._idField()] = commandResult.insertedId;
+                return obj;
+            });
     }
 
     protected _idField() {

@@ -12,6 +12,10 @@ export class EntityManager {
         private entityConfigRepository: EntityConfigRepository,
         private schemaRepository: SchemaRepository
     ) {
+        this.init();
+    }
+
+    public init() {
         this.entityConfigRepository.find({})
             .flatMap((entityConfig: EntityConfig) => {
                 return this.schemaRepository.find({_id: entityConfig.schema})

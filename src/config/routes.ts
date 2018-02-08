@@ -1,5 +1,5 @@
 import {Router, Request, Response} from "express";
-import {Rest} from "../share/rest";
+import {Rest} from "../share/Rest";
 import {entityConfigRepository, pluginConfigSchemaRepository, entitySchemaRepository} from "./repositories";
 import {EntityConfig} from "./model/EntityConfig";
 import * as merge from "merge";

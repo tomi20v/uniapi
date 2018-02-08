@@ -1,11 +1,10 @@
-import {AbstractRepository} from "../share/abstractRepository";
-import {CallableInterface} from "../share/callableInterface";
+import {AbstractRepository} from "../share/AbstractRepository";
+import {CallableInterface} from "../share/CallableInterface";
 import {PluginConfigSchema} from "./model/PluginConfigSchema";
-import {Observable} from "rxjs/Rx";
 
 export class PluginConfigSchemaRepository extends AbstractRepository {
 
-    mongoCollectionName: string = 'ua_plugin';
+    mongoCollectionName: string = 'uaPluginConfigSchema';
 
     factory: CallableInterface<any> = PluginConfigSchema.fromDb;
 

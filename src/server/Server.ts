@@ -52,10 +52,25 @@ export class Server {
             this.configRouter,
             this.entityRouter
         );
-
     }
 
-    public start() {
+    start() {
+
+        this.subject.subscribe(
+            (event: ServerEventInterface) => {
+                if (event.eventName == 'server.init') {
+                    switch (event.data) {
+                        case 'Server':
+                            this.initDeps();
+                            break;
+                        default:
+                            let l = event.data[0].toLowerCase() + event.data.substr(1);
+                            if (this.hasOwnProperty(l)) {
+                                this[l].init();
+                            }
+                    }
+                }
+            });
 
         this.uniApiApp.init()
             .subscribe(
@@ -72,8 +87,13 @@ export class Server {
             )
     }
 
-    public registerPlugin(plugin: PluginInterface, schema: PluginConfigSchema) {
+    registerPlugin(plugin: PluginInterface, schema: PluginConfigSchema) {
         this.pluginManager.registerPlugin(plugin, schema);
+    }
+
+    private initDeps() {
+        this.configManager.init();
+
     }
 
 }

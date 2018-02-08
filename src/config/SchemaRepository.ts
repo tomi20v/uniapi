@@ -1,11 +1,11 @@
-import {AbstractRepository} from "../share/abstractRepository";
-import {CallableInterface} from "../share/callableInterface";
+import {AbstractRepository} from "../share/AbstractRepository";
+import {CallableInterface} from "../share/CallableInterface";
 import {EntitySchema} from "./model/EntitySchema";
 import {Observable} from "rxjs/Rx";
 
 export class SchemaRepository extends AbstractRepository {
 
-    mongoCollectionName: string = 'ua_schema';
+    mongoCollectionName: string = 'uaEntitySchema';
 
     factory: CallableInterface<any> = EntitySchema.fromDb;
 

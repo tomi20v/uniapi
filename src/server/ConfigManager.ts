@@ -6,16 +6,18 @@ import {Observable} from "rxjs/Rx";
 
 export class ConfigManager {
 
-    public serverConfig: Observable<ServerConfigInterface>;
-    public appConfig: AppConfig;
-    public appConfigStream: Observable<AppConfig>;
+    serverConfig: Observable<ServerConfigInterface>;
+    appConfig: Observable<AppConfig>;
 
     constructor(
         private appConfigRepository: AppConfigRepository
     ) {
-
         this.serverConfig = Observable.of(<any>defaultConfig);
-        this.appConfigStream = <Observable<AppConfig>>this.appConfigRepository
+        this.init();
+    }
+
+    public init() {
+        this.appConfig = <Observable<AppConfig>>this.appConfigRepository
             .findOne({_id: '$appConfig'});
     }
 

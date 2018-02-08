@@ -3,15 +3,14 @@ import {AbstractSchema} from "../model/AbstractSchema";
 import {PluginConfigInterface} from "./PluginConfigInterface";
 import {PluginEventInterface} from "./PluginEventInterface";
 import {ServerEventInterface} from "../server/ServerEventInterface";
-import {Subject} from "rxjs/Subject";
+import {ReplaySubject} from "rxjs/ReplaySubject";
 
 /** @TODO PluginConfigSchemaManager should be abstracted */
 export class PluginManager {
 
     private plugins: PluginInterface[] = [];
     private schemas: AbstractSchema[] = [];
-    // private globalPluginConfigs: PluginConfigInterface[] = [];
-    private globalPluginConfigs = new Subject<PluginConfigInterface>();
+    private globalPluginConfigs = new ReplaySubject<PluginConfigInterface>();
 
     registerPlugin(plugin: PluginInterface, configSchema: AbstractSchema) {
         this.plugins.push(plugin);
@@ -27,15 +26,7 @@ export class PluginManager {
 
     registerGlobalPluginConfigs(plugins: PluginConfigInterface[]) {
         console.log('globalpluginconfigs registered');
-        // this.globalPluginConfigs = plugins;
-        let bugfix = [];
-        for (let i in plugins) {
-            if (plugins.hasOwnProperty(i)) {
-                bugfix.push(plugins[i]);
-            }
-        }
-        console.log('globalpluginconfigs loaded', bugfix);
-        bugfix.forEach(eachBugfixed => this.globalPluginConfigs.next(eachBugfixed));
+        plugins.forEach(eachPlugin => this.globalPluginConfigs.next(eachPlugin));
     }
 
     withGlobalPlugins(event: PluginEventInterface) {
@@ -43,8 +34,7 @@ export class PluginManager {
         this.globalPluginConfigs
             .subscribe(
                 (config: PluginConfigInterface) => {
-            // )
-            // .forEach((config: PluginConfigInterface) => {
+                    // console.log('firing', event.eventName, config);
                 const plugin = this.pluginInstance(config.pluginId);
                 plugin.handle(event, config);
             })
