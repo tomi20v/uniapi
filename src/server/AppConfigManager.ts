@@ -1,18 +1,14 @@
-import * as defaultConfig from '../../config/server.json';
-import {ServerConfigInterface} from "./ServerConfigInterface";
-import {AppConfigRepository} from "../config/AppConfigRepository";
+import {AppConfigRepository} from "../config/repository/AppConfigRepository";
 import {AppConfig} from "../config/model/AppConfig";
 import {Observable} from "rxjs/Rx";
 
-export class ConfigManager {
+export class AppConfigManager {
 
-    serverConfig: Observable<ServerConfigInterface>;
     appConfig: Observable<AppConfig>;
 
     constructor(
         private appConfigRepository: AppConfigRepository
     ) {
-        this.serverConfig = Observable.of(<any>defaultConfig);
         this.init();
     }
 

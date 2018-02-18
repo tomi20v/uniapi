@@ -1,6 +1,6 @@
-import {AbstractRepository} from "../share/AbstractRepository";
-import {CallableInterface} from "../share/CallableInterface";
-import {EntitySchema} from "./model/EntitySchema";
+import {AbstractRepository} from "../../share/AbstractRepository";
+import {CallableInterface} from "../../share/CallableInterface";
+import {EntitySchema} from "../model/EntitySchema";
 import {Observable} from "rxjs/Rx";
 
 export class SchemaRepository extends AbstractRepository {

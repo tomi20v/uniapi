@@ -1,60 +1,33 @@
-import * as defaultConfig from "../../config/server.json";
+import * as _ from "lodash";
+import * as defaultConfig from "../../../config/server.json";
 import * as http from 'http';
 import * as express from "express";
-import {UniApiApp} from "../UniApiApp";
-import {ConfigManager} from "./ConfigManager";
-import {EntityRouter} from "../entity/EntityRouter";
+import {BootableInterface} from "../boot/BootableInterface";
 import {ServerConfigInterface} from "./ServerConfigInterface";
-import {configRouter} from "../config/routes";
-import {pluginManager} from "../plugins/plugins";
-
-import * as _ from "lodash";
-import {Subject} from "rxjs/Subject";
 import {ServerEventInterface} from "./ServerEventInterface";
-import {EntityManager} from "../entity/EntityManager";
-import {appConfigRepository, entityConfigRepository, entitySchemaRepository} from "../config/repositories";
-import {PluginManager} from "../plugins/PluginManager";
-import {PluginInterface} from "../plugins/PluginInterface";
-import {PluginConfigSchema} from "../config/model/PluginConfigSchema";
+import {Subject} from "rxjs/Rx";
+import {UniApiApp} from "../UniApiApp";
 
 export class Server {
 
-    private config: ServerConfigInterface;
-    private expressApp: express.Application;
-    private appSubject: Subject<express.Application>;
-    private configManager: ConfigManager;
-    private pluginManager: PluginManager;
-    private configRouter: express.Router;
-    private entityManager: EntityManager;
-    private entityRouter: EntityRouter;
-    private uniApiApp: UniApiApp;
-
     private server: http.Server;
 
-    private subject: Subject<ServerEventInterface>;
-
-    constructor(config: ServerConfigInterface) {
+    constructor(
+        private config: ServerConfigInterface,
+        private subject: Subject<ServerEventInterface>,
+        private uniApiApp: UniApiApp,
+        private bootPlugins: BootableInterface
+    ) {
         this.config = _.merge(defaultConfig, config);
-        const deps = config.deps || {};
-        this.subject = deps.serverSubject || new Subject<ServerEventInterface>();
-        this.expressApp = deps.expressApp || express();
-        this.appSubject = deps.appSubject || new Subject<express.Application>();
-        this.configManager = deps.configManager || new ConfigManager(appConfigRepository);
-        this.pluginManager = deps.pluginManager || pluginManager;
-        this.configRouter = deps.configRouter || configRouter;
-        this.entityManager = deps.entityManager || new EntityManager(entityConfigRepository, entitySchemaRepository);
-        this.entityRouter = deps.entityRouter || new EntityRouter(pluginManager);
-        this.uniApiApp = deps.uniApiApp || new UniApiApp(
-            this.expressApp,
-            this.appSubject,
-            this.configManager,
-            this.pluginManager,
-            this.configRouter,
-            this.entityRouter
-        );
+    }
+
+    boot() {
+        this.bootPlugins.boot();
     }
 
     start() {
+
+        this.boot();
 
         this.subject.subscribe(
             (event: ServerEventInterface) => {
@@ -87,13 +60,13 @@ export class Server {
             )
     }
 
-    registerPlugin(plugin: PluginInterface, schema: PluginConfigSchema) {
-        this.pluginManager.registerPlugin(plugin, schema);
+    serverEvent(event: ServerEventInterface) {
+        this.subject.next(event);
     }
 
     private initDeps() {
-        this.configManager.init();
-
+        // @todo I need some more decoupled implementation
+        // this.configManager.init();
     }
 
 }

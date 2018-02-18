@@ -1,15 +1,15 @@
-import * as defaultConfig from '../config/server.json';
+import * as defaultConfig from '../../config/server.json';
 import {Observable} from "rxjs";
 const rxMongoExports = require('rxmongo');
 const RxMongo = rxMongoExports.RxMongo;
 
-export const rxMongoDbStream = RxMongo.connect((<any>defaultConfig).storage.dsn);
-rxMongoDbStream
-    .subscribe(db => {
-        console.log('mongo CONNECTED!');
-    }, err => {
-        console.log('mongo connect ERR', err);
-    });
+// export const rxMongoDbStream = RxMongo.connect((<any>defaultConfig).storage.dsn);
+// rxMongoDbStream
+//     .register(db => {
+//         console.log('mongo CONNECTED!');
+//     }, err => {
+//         console.log('mongo connect ERR', err);
+//     });
 
 interface InsertCommandResultInner {
     ok: number;
@@ -20,7 +20,7 @@ export interface InsertCommandResult {
     connection: any;
     message: any;
     ops: any;
-    insertedCont: number;
+    insertedCount: number;
     insertedId: string;
 }
 interface UpdateCommandResultInner {
@@ -37,8 +37,14 @@ export interface UpdateCommandResult {
     upsertedCount: number;
     matchedCount: number;
 }
+export interface DeleteCommandResult {
+    result: InsertCommandResultInner;
+    connection: any;
+    message: string;
+    deletedCount: number;
+}
 export interface RxCollectionInterface {
-    find(filter: any): RxCursorInterface;
+    find(filter: any);
     findById(id: string);
     findOne(filter: any);
     exists(query: any);

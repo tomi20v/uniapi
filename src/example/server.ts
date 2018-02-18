@@ -1,5 +1,6 @@
-import {Server} from "../server/Server";
 import {ServerConfigInterface} from "../server/ServerConfigInterface";
+import {ServerFactory} from "../server/ServerFactory";
 
-const server = new Server(<ServerConfigInterface>{});
+const serverFactory = new ServerFactory();
+const server = serverFactory.makeServer(<ServerConfigInterface>{});
 server.start();

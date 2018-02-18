@@ -2,10 +2,11 @@ import {PluginInterface} from "../PluginInterface";
 import {PluginEventInterface} from "../PluginEventInterface";
 import {AbstractSchema} from "../../model/AbstractSchema";
 import {$TimestampConfigInterface} from "./$TimestampConfigInterface";
+import {ServerEventInterface} from "../../server/ServerEventInterface";
 
 export class $TimestampPlugin implements PluginInterface {
 
-    public static id = '$timestamp';
+    readonly id = '$timestamp';
 
     private FORMAT_TIMESTAMP = 'timestamp';
 
@@ -17,15 +18,28 @@ export class $TimestampPlugin implements PluginInterface {
             { pattern: /^schema\.compile$/, callback: this.addFieldsToSchema},
             { pattern: /\.created$/, callback: this.setStamps},
             { pattern: /\.changed$/, callback: this.setStamps},
+            { pattern: /entity\.preroute/, callback: this.happened},
         ];
         eventMap.forEach(each => {
             if (each[0].test(event.eventName)) {
-                return each[1].call(this, event.value, config);
+                each[1].call(this, event, config);
             }
         });
     }
 
-    private addFieldsToSchema(schema: AbstractSchema, config: $TimestampConfigInterface) {
+    // handleServerEvent(event: ServerEventInterface) {
+    //     switch (event.eventName) {
+    //         case 'server.initdb':
+    //             return this.initDbActor.initDb(<InitDbData>event);
+    //     }
+    // }
+
+private happened(event: PluginEventInterface) {
+        console.log('it happened', event.eventName, event.context);
+}
+
+    private addFieldsToSchema(event: PluginEventInterface, config: $TimestampConfigInterface) {
+        let schema: AbstractSchema = event.value;
         if (config.onCreate) {
             const field = config.onCreateField;
             schema.properties[field] = this.schemaByFormat(field, config.format, schema.properties[field]);
@@ -49,7 +63,8 @@ export class $TimestampPlugin implements PluginInterface {
         }
     }
 
-    private setStamps(entity: any, config: $TimestampConfigInterface) {
+    private setStamps(event: PluginEventInterface, config: $TimestampConfigInterface) {
+        let entity: any = event.value;
         if (config.onCreate && !entity[config.onCreateField]) {
             entity[config.onCreateField] = this.stampByFormat(config.format);
         }

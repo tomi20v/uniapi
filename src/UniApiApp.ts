@@ -1,11 +1,12 @@
 import * as express from 'express';
 import * as bodyParser from "body-parser";
-import {Subject} from "rxjs/Subject";
-import {ConfigManager} from "./server/ConfigManager";
+import {Subject} from "rxjs/Rx";
+import {AppConfigManager} from "./server/AppConfigManager";
 import {EntityRouter} from "./entity/EntityRouter";
 import {AppConfig} from "./config/model/AppConfig";
 import {PluginManager} from "./plugins/PluginManager";
 import {ServerConfigInterface} from "./server/ServerConfigInterface";
+import {ServerConfigManager} from "./server/ServerConfigManager";
 // import * as compression from 'compression';
 
 export class UniApiApp {
@@ -13,17 +14,17 @@ export class UniApiApp {
     constructor(
         public expressApp: express.Application,
         public appSubject: Subject<express.Application>,
-        private configManager: ConfigManager,
+        private serverConfigManager: ServerConfigManager,
+        private appConfigManager: AppConfigManager,
         private pluginManager: PluginManager,
         private configRouter: express.Router,
         private entityRouter: EntityRouter
     ) {}
 
-    public init() {
+    init() {
 
-        this.configManager.serverConfig.subscribe(
+        this.serverConfigManager.serverConfig.subscribe(
             (serverConfig: ServerConfigInterface) => {
-                // this.appConfigRepository.find({})
 
                 this.expressApp.disable('x-powered-by');
 
@@ -40,8 +41,7 @@ export class UniApiApp {
 
                 this.initErrorHandling();
 
-                this.configManager.appConfigStream
-                    .delay(2000)
+                this.appConfigManager.appConfig
                     .subscribe((appConfig: AppConfig) => {
                         if (appConfig === null) {
                             throw 'app config not found';
@@ -102,15 +102,21 @@ export class UniApiApp {
 
         // production error handler
         // no stacktrace leaked to user
-        this.expressApp.use(function(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
+        this.expressApp.use(
+            function(
+                err: any,
+                req: express.Request,
+                res: express.Response,
+                next: express.NextFunction
+            ) {
 
-            res.status(err.status || 500);
-            res.json({
-                error: {},
-                message: err.message
+                res.status(err.status || 500);
+                res.json({
+                    error: {},
+                    message: err.message
+                });
+
             });
-
-        });
 
     }
 

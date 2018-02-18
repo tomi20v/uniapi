@@ -1,6 +1,6 @@
-import {AbstractRepository} from "../share/AbstractRepository";
-import {CallableInterface} from "../share/CallableInterface";
-import {AppConfig} from "./model/AppConfig";
+import {AbstractRepository} from "../../share/AbstractRepository";
+import {CallableInterface} from "../../share/CallableInterface";
+import {AppConfig} from "../model/AppConfig";
 
 export class AppConfigRepository extends AbstractRepository {
 

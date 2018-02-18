@@ -1,27 +1,38 @@
 import {PluginInterface} from "./PluginInterface";
-import {AbstractSchema} from "../model/AbstractSchema";
 import {PluginConfigInterface} from "./PluginConfigInterface";
 import {PluginEventInterface} from "./PluginEventInterface";
-import {ServerEventInterface} from "../server/ServerEventInterface";
-import {ReplaySubject} from "rxjs/ReplaySubject";
+import {Observable, ReplaySubject} from "rxjs/Rx";
+import {PluginInitDbInterface} from "./PluginInitDbInterface";
 
-/** @TODO PluginConfigSchemaManager should be abstracted */
 export class PluginManager {
 
     private plugins: PluginInterface[] = [];
-    private schemas: AbstractSchema[] = [];
+    private pluginInitDbs: PluginInitDbInterface[] = [];
     private globalPluginConfigs = new ReplaySubject<PluginConfigInterface>();
 
-    registerPlugin(plugin: PluginInterface, configSchema: AbstractSchema) {
+    registerPlugin(
+        plugin: PluginInterface,
+        pluginInitDB?: PluginInitDbInterface
+    ) {
         this.plugins.push(plugin);
-        this.schemas.push(configSchema);
+        if (pluginInitDB) {
+            this.pluginInitDbs.push(pluginInitDB);
+        }
     }
 
-    handleServerEvent(event: ServerEventInterface) {
-        console.log('serverEvent: ', event);
-        for (let i=0; i<this.plugins.length; i++) {
-            this.plugins[i].handle(event, null);
-        }
+    // handleServerEvent(event: ServerEventInterface) {
+    //     console.log('serverEvent: ', event);
+    //     for (let i=0; i<this.plugins.length; i++) {
+    //         this.plugins[i].handle(event, null);
+    //     }
+    // }
+
+    instances() {
+        return Observable.from(this.plugins);
+    }
+
+    initDbInstances() {
+        return Observable.from(this.pluginInitDbs);
     }
 
     registerGlobalPluginConfigs(plugins: PluginConfigInterface[]) {
@@ -41,11 +52,13 @@ export class PluginManager {
     }
 
     private pluginInstance(pluginId: string) {
-        for (let i=0; i<this.plugins.length; i++) {
-            if (this.schemas[i].$id == pluginId) {
-                return this.plugins[i];
-            }
+        let x = this.plugins
+            .filter((plugin: PluginInterface) => plugin.id === pluginId);
+        console.log('pluginInstance: ' , x);
+        if (x.length) {
+            return x[0];
         }
+
         throw 'plugin ' + pluginId + ' is not registered';
     }
 }

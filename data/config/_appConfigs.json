@@ -1,6 +1,6 @@
 [
   {
-    "_id": "$appConfig",
+    "_id": "$default",
     "serverName": "uniapi server",
     "version": "1",
     "plugins": [],

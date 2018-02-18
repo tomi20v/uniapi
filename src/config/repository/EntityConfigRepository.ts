@@ -1,6 +1,6 @@
-import {EntityConfig} from "./model/EntityConfig";
-import {AbstractRepository} from "../share/AbstractRepository";
-import {CallableInterface} from "../share/CallableInterface";
+import {EntityConfig} from "../model/EntityConfig";
+import {AbstractRepository} from "../../share/AbstractRepository";
+import {CallableInterface} from "../../share/CallableInterface";
 
 export class EntityConfigRepository extends AbstractRepository {
 

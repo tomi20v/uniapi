@@ -15,7 +15,8 @@
       "./typings.ts"
     ],
     "rootDirs": [
-      "."
+      ".",
+      "../config"
     ]
   }
 }

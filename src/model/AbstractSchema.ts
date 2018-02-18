@@ -6,7 +6,7 @@ export abstract class AbstractSchema {
         public title: string,
         public type: string,
         public properties: object,
-        public definitions: any[],
+        public definitions: object,
         public required: any[]
     ) {}
 

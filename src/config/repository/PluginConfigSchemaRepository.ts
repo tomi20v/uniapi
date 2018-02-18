@@ -1,6 +1,6 @@
-import {AbstractRepository} from "../share/AbstractRepository";
-import {CallableInterface} from "../share/CallableInterface";
-import {PluginConfigSchema} from "./model/PluginConfigSchema";
+import {AbstractRepository} from "../../share/AbstractRepository";
+import {CallableInterface} from "../../share/CallableInterface";
+import {PluginConfigSchema} from "../model/PluginConfigSchema";
 
 export class PluginConfigSchemaRepository extends AbstractRepository {
 

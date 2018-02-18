@@ -3,15 +3,24 @@ const _ = require('lodash');
 export class FieldNameCleaner {
 
     clearFieldNames(obj: object) {
-        return this.clearCore(obj, (eachKey: string) =>
-            eachKey[0] == '$' ? '_' + eachKey : eachKey
+        return this.clearCore(obj, this.clearFieldName
         );
     }
 
     restoreFieldNames(obj: any) {
-        return this.clearCore(obj, (eachKey: string) =>
-            eachKey.substr(0, 2) === '_$' ? eachKey.substr(1) : eachKey
-        );
+        return this.clearCore(obj, this.restoreFieldName);
+    }
+
+    public clearFieldName(fieldName: string): string {
+        return fieldName[0] == '$'
+            ? '_' + fieldName
+            : fieldName;
+    }
+
+    public restoreFieldName(fieldName: string): string {
+        return fieldName.substr(0, 2) === '_$'
+            ? fieldName.substr(1)
+            : fieldName
     }
 
     private clearCore(obj: object, cb) {

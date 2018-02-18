@@ -1,7 +1,7 @@
-import {EntityConfigRepository} from "../config/EntityConfigRepository";
-import {SchemaRepository} from "../config/SchemaRepository";
+import {EntityConfigRepository} from "../config/repository/EntityConfigRepository";
+import {SchemaRepository} from "../config/repository/SchemaRepository";
 import {EntityConfig} from "../config/model/EntityConfig";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs/Rx";
 import {EntitySchema} from "../config/model/EntitySchema";
 
 export class EntityManager {

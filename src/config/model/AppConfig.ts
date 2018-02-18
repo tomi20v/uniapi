@@ -7,8 +7,8 @@ export class AppConfig {
         public serverName: string,
         public version: number,
         public plugins: PluginConfigInterface[],
-        public tstamp: Date|null,
-        public crstamp: Date|null
+        public tstamp?: number|null,
+        public crstamp?: number|null
     ) {}
 
     static fromDb(data: any) {
@@ -17,8 +17,8 @@ export class AppConfig {
             data.serverName,
             data.version,
             data.plugins,
-            data.tstamp,
-            data.crstamp
+            data.tstamp || null,
+            data.crstamp || null
         );
     }
 }
