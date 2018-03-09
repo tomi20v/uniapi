@@ -1,8 +1,8 @@
 export class Context {
 
     constructor(
-        public readonly originalPath,
-        public currentPath
+        public readonly req,
+        public readonly res
     ) {}
 
 }

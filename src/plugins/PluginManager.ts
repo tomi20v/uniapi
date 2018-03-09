@@ -1,14 +1,20 @@
-import {PluginInterface} from "./PluginInterface";
+import {IPluginHandlerDefinition, PluginInterface} from "./PluginInterface";
 import {PluginConfigInterface} from "./PluginConfigInterface";
 import {PluginEventInterface} from "./PluginEventInterface";
 import {Observable, ReplaySubject} from "rxjs/Rx";
 import {PluginInitDbInterface} from "./PluginInitDbInterface";
+
+export interface IPluginWrapper {
+    plugin: PluginInterface;
+    config: PluginConfigInterface;
+}
 
 export class PluginManager {
 
     private plugins: PluginInterface[] = [];
     private pluginInitDbs: PluginInitDbInterface[] = [];
     private globalPluginConfigs = new ReplaySubject<PluginConfigInterface>();
+    private globalPlugins = new ReplaySubject<IPluginWrapper>();
 
     registerPlugin(
         plugin: PluginInterface,
@@ -35,20 +41,18 @@ export class PluginManager {
         return Observable.from(this.pluginInitDbs);
     }
 
-    registerGlobalPluginConfigs(plugins: PluginConfigInterface[]) {
-        console.log('globalpluginconfigs registered');
-        plugins.forEach(eachPlugin => this.globalPluginConfigs.next(eachPlugin));
+    registerGlobalPluginConfigs(pluginConfigs: PluginConfigInterface[]){
+        pluginConfigs.forEach(pluginConfig => {
+            const plugin = this.pluginInstance(pluginConfig.pluginId);
+            this.globalPlugins.next({plugin: plugin,config: pluginConfig});
+        });
+        this.globalPlugins.complete();
     }
 
     withGlobalPlugins(event: PluginEventInterface) {
-        console.log('withglobalplugins');
-        this.globalPluginConfigs
-            .subscribe(
-                (config: PluginConfigInterface) => {
-                    // console.log('firing', event.eventName, config);
-                const plugin = this.pluginInstance(config.pluginId);
-                plugin.handle(event, config);
-            })
+        return this.globalPlugins
+            .map(pluginWrapper => this.invokeHandle(pluginWrapper, event))
+            .last();
     }
 
     private pluginInstance(pluginId: string) {
@@ -61,4 +65,19 @@ export class PluginManager {
 
         throw 'plugin ' + pluginId + ' is not registered';
     }
+
+    private invokeHandle(
+        pluginWrapper: IPluginWrapper,
+        event: PluginEventInterface
+    ) {
+        pluginWrapper.plugin.handlers.forEach(
+            (def: IPluginHandlerDefinition) => {
+                if (def.pattern.test(event.eventName)) {
+                    event = def.callback(event, pluginWrapper.config);
+                }
+            }
+        )
+        return event;
+    }
+
 }

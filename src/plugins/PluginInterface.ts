@@ -1,14 +1,20 @@
 import {PluginEventInterface} from "./PluginEventInterface";
-import {PluginConfigInterface} from "./PluginConfigInterface";
-import {PluginConfigSchema} from "../config/model/PluginConfigSchema";
+import {CallableInterface} from "../share/CallableInterface";
+
+export interface IPluginHandlerDefinition {
+    pattern: RegExp;
+    callback: CallableInterface<PluginEventInterface>;
+}
 
 export interface PluginInterface {
 
     readonly id: string;
 
-    handle(
-        event: PluginEventInterface,
-        config: PluginConfigInterface
-    ): boolean;
+    readonly handlers: IPluginHandlerDefinition[];
+
+    // handle(
+    //     event: PluginEventInterface,
+    //     config: PluginConfigInterface
+    // ): PluginEventInterface;
 
 }

@@ -30,7 +30,6 @@
     "nodejs-config": "^1.0.1",
     "rxjs": "^6.0.0-alpha.3",
     "rxjs-fs": "0.0.5",
-    "rxmongo": "^0.14.0",
     "ts-helpers": "^1.1.2",
     "typescript": "^2.6.2"
   },

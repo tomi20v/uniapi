@@ -32,7 +32,8 @@ export class ServerFactory {
                 pluginManager,
                 configRouter,
                 serverConfigManager,
-                appConfigManager
+                appConfigManager,
+                repositoryFactory
             ),
             this.bootPlugins(pluginManager)
         );
@@ -42,7 +43,8 @@ export class ServerFactory {
         pluginManager: PluginManager,
         configRouter: ConfigRouter,
         serverConfigManager: ServerConfigManager,
-        appConfigManager: AppConfigManager
+        appConfigManager: AppConfigManager,
+        repositoryFactory: RepositoryFactory
     ) {
         return new UniApiApp(
             express(),
@@ -51,7 +53,10 @@ export class ServerFactory {
             appConfigManager,
             pluginManager,
             configRouter.router,
-            new EntityRouter(pluginManager)
+            new EntityRouter(
+              pluginManager,
+              repositoryFactory.entityConfigRepository()
+            )
         );
     }
 
