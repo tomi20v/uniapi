@@ -1,83 +1,82 @@
-import {IPluginHandlerDefinition, PluginInterface} from "./PluginInterface";
+import {IPluginHandlerDefinition, IPlugin} from "./IPlugin";
 import {PluginConfigInterface} from "./PluginConfigInterface";
 import {PluginEventInterface} from "./PluginEventInterface";
 import {Observable, ReplaySubject} from "rxjs/Rx";
 import {PluginInitDbInterface} from "./PluginInitDbInterface";
 
-export interface IPluginWrapper {
-    plugin: PluginInterface;
-    config: PluginConfigInterface;
-}
-
 export class PluginManager {
 
-    private plugins: PluginInterface[] = [];
-    private pluginInitDbs: PluginInitDbInterface[] = [];
-    private globalPluginConfigs = new ReplaySubject<PluginConfigInterface>();
-    private globalPlugins = new ReplaySubject<IPluginWrapper>();
+  private pluginInitDbs: PluginInitDbInterface[] = [];
+  private pluginClasses: object = {};
+  private plugins: object = {};
+  private globalPlugins: IPlugin[] = [];
 
-    registerPlugin(
-        plugin: PluginInterface,
-        pluginInitDB?: PluginInitDbInterface
-    ) {
-        this.plugins.push(plugin);
-        if (pluginInitDB) {
-            this.pluginInitDbs.push(pluginInitDB);
+  registerPlugin(
+    pluginId,
+    pluginClass,
+    pluginInitDB?: PluginInitDbInterface
+  ) {
+    this.pluginClasses[pluginId] = pluginClass;
+    if (pluginInitDB) {
+      this.pluginInitDbs.push(pluginInitDB);
+    }
+  }
+
+  initDbInstances() {
+    return Observable.from(this.pluginInitDbs);
+  }
+
+  registerGlobalPlugins(pluginConfigs: PluginConfigInterface[]) {
+    console.log('register global plugins', pluginConfigs);
+    pluginConfigs.forEach(eachConfig => {
+      this.globalPlugins.push(this.getInstance(eachConfig));
+    });
+  }
+
+
+
+  private getInstance(
+    pluginConfig: PluginConfigInterface
+  ): IPlugin {
+    const hash = this.configHash(pluginConfig);
+    let plugin: IPlugin = this.plugins[hash] || null;
+    if (!plugin) {
+      const pluginClass = this.pluginClasses[pluginConfig.pluginId];
+      if (!pluginClass) {
+        console.log('ignoring unknown plugin: ', pluginClass);
+      }
+      else {
+        plugin = new pluginClass(pluginConfig, hash);
+        this.plugins[hash] = plugin;
+      }
+    }
+    return plugin;
+  }
+
+  configHash(config): string {
+    const s = JSON.stringify(config);
+    return '' + s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
+  }
+
+  withGlobalPlugins$(event: PluginEventInterface) {
+    return Observable.from(this.globalPlugins)
+      .map(plugin => this.invokeHandle(plugin, event))
+      .last();
+  }
+
+  private invokeHandle(
+    plugin: IPlugin,
+    event: PluginEventInterface
+  ) {
+    plugin.handlers.forEach(
+      (def: IPluginHandlerDefinition) => {
+        if (def.pattern.test(event.eventName)) {
+          // event = def.callback(event, plugin.config);
+          event = def.callback(event);
         }
-    }
-
-    // handleServerEvent(event: ServerEventInterface) {
-    //     console.log('serverEvent: ', event);
-    //     for (let i=0; i<this.plugins.length; i++) {
-    //         this.plugins[i].handle(event, null);
-    //     }
-    // }
-
-    instances() {
-        return Observable.from(this.plugins);
-    }
-
-    initDbInstances() {
-        return Observable.from(this.pluginInitDbs);
-    }
-
-    registerGlobalPluginConfigs(pluginConfigs: PluginConfigInterface[]){
-        pluginConfigs.forEach(pluginConfig => {
-            const plugin = this.pluginInstance(pluginConfig.pluginId);
-            this.globalPlugins.next({plugin: plugin,config: pluginConfig});
-        });
-        this.globalPlugins.complete();
-    }
-
-    withGlobalPlugins(event: PluginEventInterface) {
-        return this.globalPlugins
-            .map(pluginWrapper => this.invokeHandle(pluginWrapper, event))
-            .last();
-    }
-
-    private pluginInstance(pluginId: string) {
-        let x = this.plugins
-            .filter((plugin: PluginInterface) => plugin.id === pluginId);
-        console.log('pluginInstance: ' , x);
-        if (x.length) {
-            return x[0];
-        }
-
-        throw 'plugin ' + pluginId + ' is not registered';
-    }
-
-    private invokeHandle(
-        pluginWrapper: IPluginWrapper,
-        event: PluginEventInterface
-    ) {
-        pluginWrapper.plugin.handlers.forEach(
-            (def: IPluginHandlerDefinition) => {
-                if (def.pattern.test(event.eventName)) {
-                    event = def.callback(event, pluginWrapper.config);
-                }
-            }
-        )
-        return event;
-    }
+      }
+    )
+    return event;
+  }
 
 }
