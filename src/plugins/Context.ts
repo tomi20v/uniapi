@@ -1,8 +1,8 @@
 export class Context {
 
-    constructor(
-        public readonly req,
-        public readonly res
-    ) {}
+  constructor(
+    public readonly req,
+    public readonly res
+  ) {}
 
 }

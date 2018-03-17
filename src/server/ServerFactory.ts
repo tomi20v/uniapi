@@ -15,55 +15,55 @@ import {ConfigRouter} from "../config/ConfigRouter";
 
 export class ServerFactory {
 
-    makeServer(config: ServerConfigInterface): Server {
-        const pluginManager = new PluginManager();
-        const serverConfigManager = new ServerConfigManager();
-        const repositoryFactory = new RepositoryFactory(
-            new ConnectionFactory(serverConfigManager)
-        );
-        const appConfigManager = new AppConfigManager(
-            repositoryFactory.appConfigRepository()
-        );
-        const configRouter = new ConfigRouter(repositoryFactory);
-        return new Server(
-            config,
-            new Subject<ServerEventInterface>(),
-            this.uniApiApp(
-                pluginManager,
-                configRouter,
-                serverConfigManager,
-                appConfigManager,
-                repositoryFactory
-            ),
-            this.bootPlugins(pluginManager)
-        );
-    }
+  makeServer(config: ServerConfigInterface): Server {
+    const pluginManager = new PluginManager();
+    const serverConfigManager = new ServerConfigManager();
+    const repositoryFactory = new RepositoryFactory(
+      new ConnectionFactory(serverConfigManager)
+    );
+    const appConfigManager = new AppConfigManager(
+      repositoryFactory.appConfigRepository()
+    );
+    const configRouter = new ConfigRouter(repositoryFactory);
+    return new Server(
+      config,
+      new Subject<ServerEventInterface>(),
+      this.uniApiApp(
+        pluginManager,
+        configRouter,
+        serverConfigManager,
+        appConfigManager,
+        repositoryFactory
+      ),
+      this.bootPlugins(pluginManager)
+    );
+  }
 
-    private uniApiApp(
-        pluginManager: PluginManager,
-        configRouter: ConfigRouter,
-        serverConfigManager: ServerConfigManager,
-        appConfigManager: AppConfigManager,
-        repositoryFactory: RepositoryFactory
-    ) {
-        return new UniApiApp(
-            express(),
-            new Subject<express.Application>(),
-            serverConfigManager,
-            appConfigManager,
-            pluginManager,
-            configRouter.router,
-            new EntityRouter(
-              pluginManager,
-              repositoryFactory.entityConfigRepository()
-            )
-        );
-    }
+  private uniApiApp(
+    pluginManager: PluginManager,
+    configRouter: ConfigRouter,
+    serverConfigManager: ServerConfigManager,
+    appConfigManager: AppConfigManager,
+    repositoryFactory: RepositoryFactory
+  ) {
+    return new UniApiApp(
+      express(),
+      new Subject<express.Application>(),
+      serverConfigManager,
+      appConfigManager,
+      pluginManager,
+      configRouter.router,
+      new EntityRouter(
+        pluginManager,
+        repositoryFactory.entityConfigRepository()
+      )
+    );
+  }
 
-    private bootPlugins(
-        pluginManager: PluginManager
-    ) {
-        return new BootPluginsLocal(pluginManager);
-    }
+  private bootPlugins(
+    pluginManager: PluginManager
+  ) {
+    return new BootPluginsLocal(pluginManager);
+  }
 
 }

@@ -4,14 +4,14 @@ import {Observable} from "rxjs/Rx";
 
 export class ServerConfigManager {
 
-    serverConfig: Observable<ServerConfigInterface>;
+  serverConfig: Observable<ServerConfigInterface>;
 
-    constructor(
-    ) {
-        this.serverConfig = Observable.of(<any>defaultConfig);
-        this.init();
-    }
+  constructor(
+  ) {
+    this.serverConfig = Observable.of(<any>defaultConfig);
+    this.init();
+  }
 
-    public init() {}
+  public init() {}
 
 }

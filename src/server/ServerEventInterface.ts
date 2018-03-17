@@ -1,4 +1,4 @@
 export interface ServerEventInterface {
-    eventName: string;
-    data?: any;
+  eventName: string;
+  data?: any;
 }

@@ -9,30 +9,30 @@
 // import {BootableInterface} from "../boot/BootableInterface";
 
 interface ServerInterface {
-    port: number;
-    useMorgan: boolean;
+  port: number;
+  useMorgan: boolean;
 }
 interface StorageInterface {
-    dsn: string;
+  dsn: string;
 }
 interface ClientInterface {
-    enabled: boolean;
+  enabled: boolean;
 }
 // export interface ServerDepsInterface {
-//     serverSubject?: Subject<ServerEventInterface>;
-//     expressApp?: express.Application;
-//     appSubject?: Subject<express.Application>;
-//     configManager?: AppConfigManager;
-//     pluginManager?: PluginManager;
-//     bootPlugins?: BootableInterface;
-//     router?: express.Router;
-//     entityManager?: EntityManager;
-//     entityRouter?: EntityRouter;
-//     uniApiApp?: UniApiApp;
+//   serverSubject?: Subject<ServerEventInterface>;
+//   expressApp?: express.Application;
+//   appSubject?: Subject<express.Application>;
+//   configManager?: AppConfigManager;
+//   pluginManager?: PluginManager;
+//   bootPlugins?: BootableInterface;
+//   router?: express.Router;
+//   entityManager?: EntityManager;
+//   entityRouter?: EntityRouter;
+//   uniApiApp?: UniApiApp;
 // }
 export interface ServerConfigInterface {
-    server: ServerInterface;
-    storage: StorageInterface;
-    client: ClientInterface;
-    // deps?: ServerDepsInterface;
+  server: ServerInterface;
+  storage: StorageInterface;
+  client: ClientInterface;
+  // deps?: ServerDepsInterface;
 }

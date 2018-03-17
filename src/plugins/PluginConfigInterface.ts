@@ -1,5 +1,5 @@
 export interface PluginConfigInterface {
-    pluginId: string;
-    enabled: boolean;
-    description: string;
+  pluginId: string;
+  enabled: boolean;
+  description: string;
 }

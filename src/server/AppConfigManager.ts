@@ -4,17 +4,17 @@ import {Observable} from "rxjs/Rx";
 
 export class AppConfigManager {
 
-    appConfig: Observable<AppConfig>;
+  appConfig: Observable<AppConfig>;
 
-    constructor(
-        private appConfigRepository: AppConfigRepository
-    ) {
-        this.init();
-    }
+  constructor(
+    private appConfigRepository: AppConfigRepository
+  ) {
+    this.init();
+  }
 
-    public init() {
-        this.appConfig = <Observable<AppConfig>>this.appConfigRepository
-            .findOne({_id: '$appConfig'});
-    }
+  public init() {
+    this.appConfig = <Observable<AppConfig>>this.appConfigRepository
+      .findOne({_id: '$appConfig'});
+  }
 
 }
