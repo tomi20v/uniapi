@@ -26,7 +26,7 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
 
   public happened(event: PluginEventInterface) {
   // console.log('it happened', event.eventName, event.context);
-  event.value.headers.fck = 'anal';
+  console.log('it happened in $timespamt plugin', event.eventName);
   return event;
 }
 

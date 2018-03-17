@@ -38,10 +38,12 @@ const taskRunner = new TaskRunner({
       (initDbActor: IInitDb) => initDbActor
         .initDbPluginConfigSchema(data, logger)
     ))
+    .last()
     .flatMap(data => data)
     .flatMap((each: PluginConfigSchema) =>
       repos.pluginConfigSchemaRepository().create(each)
-    ),
+    )
+  ,
   'appConfig init': repos.appConfigRepository()
     .find({})
     .let(o => addIfNotFound(

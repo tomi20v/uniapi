@@ -16,8 +16,14 @@ export abstract class AInitDb implements IInitDb {
     data: PluginConfigSchema[],
     logger: (msg: string) => null
   ): PluginConfigSchema[] {
-    data.push(this.configSchema);
-    logger('...' + this.configSchema.$id + ' plugin config added');
+    const pluginId = this.configSchema.$id;
+    if (!_.filter(
+      data,
+      (eachSchema: PluginConfigSchema) => eachSchema.$id == pluginId
+    ).length) {
+      data.push(this.configSchema);
+      logger('...' + this.configSchema.$id + ' plugin config added');
+    }
     return data;
   }
 
