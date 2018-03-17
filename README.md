@@ -33,7 +33,7 @@ plugin levels
 Plugins are assigned by defining their configuration at the proper place. 2 
 levels are considered:
 
-* server plugins are plugins which actuate in all scenario. These are defined
+* server (global) plugins are plugins which actuate in all scenario. These are defined
 	in the server config.
 * entity plugins are those assigned to an entity schema and are called only
 	for operations on the given plugin
@@ -45,6 +45,20 @@ Plugin configs are defined by their schema. These schema live in the ua_plugin
 collection. The actual configuration is saved into the server or the entity
 config, respectively.
 
+implementing plugins
+--------------------
+
+create interface for config. Optional, but is recommended.
+
+create initDb class. Extend AInitDb and define configSchema. It is required 
+even if a plugin doesn't need configuration, just to define pluginId, enabled 
+and description properties.
+If the plugin should be activated automatically, define defaultXxxConfigs 
+variables. Set them empty array [] if not needed. 
+The configSchema and default definitions are registered automatically.
+
+create plugin class. Extend APlugin and implement
+ 
 transactions
 ============
 

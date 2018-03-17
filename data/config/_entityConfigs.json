@@ -2,22 +2,7 @@
   {
     "_id" : "$address",
     "name" : "Address",
-    "plugins": [
-      {
-        "pluginId": "$timestamp",
-        "description": "only crstamp",
-        "onCreate": true,
-        "onCreateField": "crstampx",
-        "onUpdate": false
-      },
-      {
-        "pluginId": "$timestamp",
-        "description": "only tstamp",
-        "onCreate": false,
-        "onUpdate": true,
-        "onUpdateField": "tstampx"
-      }
-    ],
+    "plugins": [],
     "schema" : "$address",
     "crstamp": 1515290100,
     "tstamp": 1515290200

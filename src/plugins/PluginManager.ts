@@ -2,11 +2,11 @@ import {IPluginHandlerDefinition, IPlugin} from "./IPlugin";
 import {PluginConfigInterface} from "./PluginConfigInterface";
 import {PluginEventInterface} from "./PluginEventInterface";
 import {Observable, ReplaySubject} from "rxjs/Rx";
-import {PluginInitDbInterface} from "./PluginInitDbInterface";
+import {IInitDb} from "./IInitDb";
 
 export class PluginManager {
 
-  private pluginInitDbs: PluginInitDbInterface[] = [];
+  private pluginInitDbs: IInitDb[] = [];
   private pluginClasses: object = {};
   private plugins: object = {};
   private globalPlugins: IPlugin[] = [];
@@ -14,7 +14,7 @@ export class PluginManager {
   registerPlugin(
     pluginId,
     pluginClass,
-    pluginInitDB?: PluginInitDbInterface
+    pluginInitDB?: IInitDb
   ) {
     this.pluginClasses[pluginId] = pluginClass;
     if (pluginInitDB) {
@@ -22,7 +22,7 @@ export class PluginManager {
     }
   }
 
-  initDbInstances() {
+  initDbInstances$() {
     return Observable.from(this.pluginInitDbs);
   }
 
@@ -32,8 +32,6 @@ export class PluginManager {
       this.globalPlugins.push(this.getInstance(eachConfig));
     });
   }
-
-
 
   private getInstance(
     pluginConfig: PluginConfigInterface

@@ -12,17 +12,16 @@ import {ServerConfigManager} from "./server/ServerConfigManager";
 import {addIfNotFound} from "./share/Observable/AddIfNotFound";
 import {BootPluginsLocal} from "../config/boot/BootPluginsLocal";
 import {PluginManager} from "./plugins/PluginManager";
-import {InitDbData} from "./plugins/InitDbDataInterface";
-import {PluginInitDbInterface} from "./plugins/PluginInitDbInterface";
+import {IInitDb} from "./plugins/IInitDb";
 import {TaskRunner} from "./share/TaskRunner";
 
 const logger = console.log;
 
 const repos = new RepositoryFactory(
-    new ConnectionFactory(
-        new ServerConfigManager(),
-        logger
-    )
+  new ConnectionFactory(
+    new ServerConfigManager(),
+    logger
+  )
 );
 
 let pluginManager = new PluginManager();
@@ -30,55 +29,50 @@ const bootPlugins = new BootPluginsLocal(pluginManager);
 bootPlugins.boot(true);
 
 const taskRunner = new TaskRunner({
-    'pluginConfigSchema init': repos.pluginConfigSchemaRepository()
-        .find({_id: {$regex: /^\$/}})
-        .flatMap(each => repos.pluginConfigSchemaRepository().remove(each.$id))
-        .toArray()
-        .map(() => <InitDbData>{
-            pluginConfigSchemas: []
-        })
-        .flatMap(data => pluginManager.initDbInstances().map(
-            (initDbActor: PluginInitDbInterface) => initDbActor
-                .initDb(data, logger)
-        ))
-        .flatMap(data => data.pluginConfigSchemas)
-        .flatMap((each: PluginConfigSchema) =>
-            repos.pluginConfigSchemaRepository().create(each)
-        ),
-    'appConfig init': repos.appConfigRepository()
-        .find({})
-        .let(o => addIfNotFound(
-            o,
-            <any>appConfigs,
-            (a: AppConfig, b: AppConfig) => a._id == b._id
-        ))
-        .toArray()
-        .flatMap(dbConfigs => pluginManager.initDbInstances().map(
-            (initDbActor: PluginInitDbInterface) => initDbActor
-                .initDb(
-                    { appConfigs: dbConfigs },
-                    logger
-                )
-        ))
-        .flatMap(r => r.appConfigs)
-        .flatMap((eachConfig: AppConfig) => eachConfig.crstamp
-            ? repos.appConfigRepository().replace(eachConfig._id, eachConfig)
-            : repos.appConfigRepository().create(eachConfig)
-        ),
-    'entityConfig init': repos.entityConfigRepository()
-        .find({_id: {$regex: /^\$/}})
-        .flatMap(each => repos.entityConfigRepository().remove(each._id))
-        .toArray()
-        .flatMap(r => <any>entityConfigs)
-        .flatMap((each: EntityConfig) => repos.entityConfigRepository().create(each)),
-    'entitySchema init': repos.entitySchemaRepository()
-        .find({_id: {$regex: /^\$/}})
-        .flatMap(each => repos.entitySchemaRepository().remove(each.$id))
-        .toArray()
-        .flatMap(r => <any>entitySchemas)
-        .flatMap((eachSchema: EntitySchema) => repos.entitySchemaRepository()
-            .create(eachSchema))
+  'pluginConfigSchema init': repos.pluginConfigSchemaRepository()
+    .find({_id: {$regex: /^\$/}})
+    .flatMap(each => repos.pluginConfigSchemaRepository().remove(each.$id))
+    .toArray()
+    .map(() => [])
+    .flatMap(data => pluginManager.initDbInstances$().map(
+      (initDbActor: IInitDb) => initDbActor
+        .initDbPluginConfigSchema(data, logger)
+    ))
+    .flatMap(data => data)
+    .flatMap((each: PluginConfigSchema) =>
+      repos.pluginConfigSchemaRepository().create(each)
+    ),
+  'appConfig init': repos.appConfigRepository()
+    .find({})
+    .let(o => addIfNotFound(
+      o,
+      <any>appConfigs,
+      (a: AppConfig, b: AppConfig) => a._id == b._id
+    ))
+    .toArray()
+    .flatMap(dbConfigs => pluginManager.initDbInstances$().map(
+      (initDbActor: IInitDb) => initDbActor
+        .initDbAppConfig(dbConfigs, logger)
+    ))
+    .flatMap(r => r)
+    .flatMap((eachConfig: AppConfig) => eachConfig.crstamp
+      ? repos.appConfigRepository().replace(eachConfig._id, eachConfig)
+      : repos.appConfigRepository().create(eachConfig)
+    ),
+  'entityConfig init': repos.entityConfigRepository()
+    .find({_id: {$regex: /^\$/}})
+    .flatMap(each => repos.entityConfigRepository().remove(each._id))
+    .toArray()
+    .flatMap(r => <any>entityConfigs)
+    .flatMap((each: EntityConfig) => repos.entityConfigRepository().create(each)),
+  'entitySchema init': repos.entitySchemaRepository()
+    .find({_id: {$regex: /^\$/}})
+    .flatMap(each => repos.entitySchemaRepository().remove(each.$id))
+    .toArray()
+    .flatMap(r => <any>entitySchemas)
+    .flatMap((eachSchema: EntitySchema) => repos.entitySchemaRepository()
+      .create(eachSchema))
 }, process.exit, logger);
 taskRunner.run();
 
-console.log('initDb working...114');
+console.log('initDb working...');
