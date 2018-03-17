@@ -1,3 +1,14 @@
+what this is
+============
+
+UniApi is a plugin based, configurable rest api service.
+
+It is also an attempt to solve tipical problems eg. synchronized startup,
+plugin architecture, etc. using RFP (reactive functional programming). This
+also means some solutions are inefficient just to be RFP.
+
+A configuration utility using angular2 is bundled and optionally served too.
+
 data storage
 ============
 
@@ -48,16 +59,16 @@ config, respectively.
 implementing plugins
 --------------------
 
-create interface for config. Optional, but is recommended.
-
-create initDb class. Extend AInitDb and define configSchema. It is required 
+- Create interface for config. Optional, but is recommended.
+- Create initDb class. Extend AInitDb and define configSchema. It is required 
 even if a plugin doesn't need configuration, just to define pluginId, enabled 
 and description properties.
-If the plugin should be activated automatically, define defaultXxxConfigs 
+- If the plugin should be activated automatically, define defaultXxxConfigs 
 variables. Set them empty array [] if not needed. 
-The configSchema and default definitions are registered automatically.
-
-create plugin class. Extend APlugin and implement
+- (The configSchema and default definitions are registered automatically.)
+- Create plugin class. Extend APlugin and implement
+- Register plugin and initdb in BootPluginsLocal.ts
+- Run **npm run initdb** to save config and apply changes if any
  
 transactions
 ============
@@ -89,3 +100,17 @@ configuration GUI client
 If enabled and installed, an angular based GUI is available at
 
 http://localhost:4200/config/client/
+
+entity API
+==========
+
+Entity api is configurable through the $rest plugin. This plugin will take care
+of the basic REST operations. The operations can be freely mapped and also 
+disabled, eg. DELETE to collection and POST to item urls are disabled by default.
+Eg. POST to item url could be mapped to update and PATCH disabled if required.
+
+example URLs
+
+http://localhost:4200/myEntity/ (get, put, post)
+http://localhost:4200/myEntity/12345 (get, put, patch, delete)
+

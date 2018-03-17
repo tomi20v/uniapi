@@ -1,4 +1,4 @@
-import * as appConfigs from "../../data/config/_appConfigs.json";
+import * as appConfig from "../../data/config/_appConfig.json";
 import * as entityConfigs from "../../data/config/_entityConfigs.json";
 import * as entitySchemas from "../../data/config/_entitySchemas.json";
 
@@ -14,6 +14,7 @@ import {BootPluginsLocal} from "../config/boot/BootPluginsLocal";
 import {PluginManager} from "./plugins/PluginManager";
 import {IInitDb} from "./plugins/IInitDb";
 import {TaskRunner} from "./share/TaskRunner";
+import clone = require("clone");
 
 const logger = console.log;
 
@@ -46,16 +47,18 @@ const taskRunner = new TaskRunner({
   ,
   'appConfig init': repos.appConfigRepository()
     .find({})
-    .let(o => addIfNotFound(
-      o,
-      <any>appConfigs,
-      (a: AppConfig, b: AppConfig) => a._id == b._id
-    ))
     .toArray()
+    .map(configs => addIfNotFound(<any>appConfig, configs, '_id'))
+    .map(configs => {
+      let defaultAppConfig: AppConfig = clone(<any>appConfig);
+      defaultAppConfig._id = "$appConfig";
+      return addIfNotFound(defaultAppConfig, configs, '_id')
+    })
     .flatMap(dbConfigs => pluginManager.initDbInstances$().map(
       (initDbActor: IInitDb) => initDbActor
         .initDbAppConfig(dbConfigs, logger)
     ))
+    .last()
     .flatMap(r => r)
     .flatMap((eachConfig: AppConfig) => eachConfig.crstamp
       ? repos.appConfigRepository().replace(eachConfig._id, eachConfig)

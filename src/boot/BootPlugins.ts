@@ -19,12 +19,13 @@ export class BootPlugins implements BootableInterface {
       // don't even create if not initing db
       byInitDb ? new $TimestampInitDb() : null
     );
+    console.log('...$timestamp plugin loaded');
     this.pluginManager.registerPlugin(
       '$rest',
       $RestPlugin,
       byInitDb ? new $RestInitDb() : null
     );
-    console.log('...$timestamp plugin loaded');
+    console.log('...$rest plugin loaded');
 
   }
 

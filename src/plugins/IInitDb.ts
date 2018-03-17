@@ -1,16 +1,16 @@
-import {CallableInterface} from "../share/CallableInterface";
 import {PluginConfigSchema} from "../config/model/PluginConfigSchema";
 import {AppConfig} from "../config/model/AppConfig";
+import {ILogger} from "../share/ILogger";
 
 export interface IInitDb {
 
   initDbPluginConfigSchema(
     data: PluginConfigSchema[],
-    logger?: CallableInterface<any>
+    logger?: ILogger
   ): PluginConfigSchema[];
   initDbAppConfig(
     data: AppConfig[],
-    logger?: CallableInterface<any>
+    logger?: ILogger
   ): AppConfig[];
 
 }

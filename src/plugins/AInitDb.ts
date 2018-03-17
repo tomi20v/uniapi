@@ -32,6 +32,10 @@ export abstract class AInitDb implements IInitDb {
     logger: (msg: string) => null
   ): AppConfig[] {
     data.forEach((eachAppConfig: AppConfig) => {
+      // don't touch the default, there will be an $appConfig for the app
+      if (eachAppConfig._id === '$default') {
+        return data;
+      }
       const pluginId = this.configSchema.$id;
       if (!_.filter(
         eachAppConfig.plugins,

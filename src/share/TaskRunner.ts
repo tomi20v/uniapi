@@ -1,5 +1,5 @@
 import {Observable} from "rxjs/Rx";
-import {CallableInterface} from "./CallableInterface";
+import {ILogger} from "./ILogger";
 
 const _ = require('lodash');
 
@@ -9,9 +9,9 @@ export class TaskRunner {
   private subscriptions = [];
 
   constructor(
-    private tasks: any,
-    private onComplete: CallableInterface<any> = () => null,
-    private logger: CallableInterface<any> = () => null
+    private readonly tasks: any,
+    private readonly onComplete = () => null,
+    private readonly logger: ILogger
   ) {
     _.forEach(tasks, () => this.taskCnt++);
   }

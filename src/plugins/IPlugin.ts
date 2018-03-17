@@ -1,10 +1,9 @@
 import {PluginEventInterface} from "./PluginEventInterface";
-import {CallableInterface} from "../share/CallableInterface";
 import {PluginConfigInterface} from "./PluginConfigInterface";
 
 export interface IPluginHandlerDefinition {
   pattern: RegExp;
-  callback: CallableInterface<PluginEventInterface>;
+  callback: (...args: any[]) => PluginEventInterface;
 }
 
 export interface IPlugin {

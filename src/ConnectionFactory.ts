@@ -1,7 +1,7 @@
 import {ServerConfigInterface} from "./server/ServerConfigInterface";
 import {ServerConfigManager} from "./server/ServerConfigManager";
 import {ReplaySubject} from "rxjs/Rx";
-import {CallableInterface} from "./share/CallableInterface";
+import {ILogger} from "./share/ILogger";
 const MongoClient = require('mongodb').MongoClient;
 
 export class ConnectionFactory {
@@ -10,7 +10,7 @@ export class ConnectionFactory {
 
   constructor(
     private serverConfigManager: ServerConfigManager,
-    private logger?: CallableInterface<any>
+    private logger?: ILogger
   ) {
     this.serverConfigManager.serverConfig
       .subscribe(

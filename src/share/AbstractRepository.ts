@@ -1,6 +1,5 @@
 import {Observable} from "rxjs"
 import {DeleteCommandResult, InsertCommandResult, RxCollectionInterface, UpdateCommandResult} from "../db"
-import {CallableInterface} from "./CallableInterface"
 import {FieldNameCleaner} from "./FieldNameCleaner";
 import {ReplaySubject} from "rxjs/Rx";
 
@@ -9,7 +8,7 @@ const _ = require('lodash');
 export abstract class AbstractRepository {
 
   protected abstract mongoCollectionName: string;
-  protected abstract factory: CallableInterface<any>;
+  protected abstract factory: (data: object) => any;
 
   rxCollection = new ReplaySubject<RxCollectionInterface>();
 
