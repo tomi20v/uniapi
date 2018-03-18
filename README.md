@@ -69,6 +69,82 @@ variables. Set them empty array [] if not needed.
 - Create plugin class. Extend APlugin and implement
 - Register plugin and initdb in BootPluginsLocal.ts
 - Run **npm run initdb** to save config and apply changes if any
+
+request lifecycle events
+========================
+
+These are the events sent to the plugins while executing an entity request:
+
+entity.preroute
+---------------
+*IPluginEvent<IEntityRequest,null>*
+
+- set language per header or url
+- set authentication data per header or cookie or whatever
+
+entity.route
+------------
+*IPluginEvent<IEntityTarget, IEntityRequest>*
+
+- define an action to be taken
+- mostly $rest plugin should take care of
+
+entity.before
+-------------
+*IPluginEvent<IEntityTarget, IEntityTarget>*
+
+- after a request is routed, set specific params for execution, or prepare data
+- if needed (eg update), will load current version into context.currentData for 
+validation
+- eg set db retrieve params based on language
+- eg set timestamps for updates or creates
+
+entity.validate
+---------------
+*IPluginEvent<IEntityTarget, IEntityTarget>*
+
+- validate request before executing
+- confirm execution: any plugin that can generate output by current target in 
+value must event.value.isHandled = true
+- event.value contains target state, event.oldValue contains current state
+- push any errors into event.errors
+- note that errors could be pusher to event.errors in any handler
+- any errors in event.errors breaks event lifecycle and ends up in error 
+handler (@todo, currently possible errors are thrown after validation only ) 
+
+entity.execute
+---------------
+*IPluginEvent<IEntityTarget, IEntityTarget>*
+
+- execute an action
+- event.value contains target state, event.oldValue contains current state
+
+entity.after
+------------
+*IPluginEvent<IEntityTarget, IEntityTarget>*
+
+- do additional processing
+- event.value contains response data
+- eg. join objects referenced by a field
+- eg. shape data (return only specific fields)
+
+entity.finish
+-------------
+- change response based on specific requirements
+- eg. translate fields or fill templates
+- eg. write log of what's been done
+
+entity.error
+------------
+- end up here after any lifecycle event completed with errors
+- prepare error response
+- will be called only in case of errors
+- $rest plugin is to prepare the error response normally
+
+entity.send
+-----------
+- send the response from assembled data
+- $rest plugin will send response in any case
  
 transactions
 ============

@@ -1,5 +1,5 @@
 import {IPluginHandlerDefinition, IPlugin} from "../IPlugin";
-import {PluginEventInterface} from "../PluginEventInterface";
+import {IPluginEvent} from "../IPluginEvent";
 import {AbstractSchema} from "../../model/AbstractSchema";
 import {$TimestampConfigInterface} from "./$TimestampConfigInterface";
 import {APlugin} from "../APlugin";
@@ -12,10 +12,9 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
     { pattern: /^schema\.compile$/, callback: this.addFieldsToSchema},
     { pattern: /\.created$/, callback: this.setStamps},
     { pattern: /\.changed$/, callback: this.setStamps},
-    { pattern: /entity\.preroute/, callback: this.happened},
   ];
 
-  private FORMAT_TIMESTAMP = 'timestamp';
+  private readonly FORMAT_TIMESTAMP = 'timestamp';
 
   constructor(
     readonly config: $TimestampConfigInterface,
@@ -24,14 +23,14 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
     super();
   }
 
-  public happened(event: PluginEventInterface) {
-  // console.log('it happened', event.eventName, event.context);
-  console.log('it happened in $timespamt plugin', event.eventName);
-  return event;
-}
+  public happened(event: IPluginEvent<any,any>) {
+    // console.log('it happened', event.eventName, event.context);
+    console.log('it happened in $timestamp plugin', event.eventName);
+    return event;
+  }
 
   public addFieldsToSchema(
-    event: PluginEventInterface
+    event: IPluginEvent<AbstractSchema,any>
   ) {
     let schema: AbstractSchema = event.value;
     if (this.config.onCreate) {
@@ -46,8 +45,8 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
   }
 
   public setStamps(
-    event: PluginEventInterface
-  ) {
+    event: IPluginEvent<any,null>
+  ): IPluginEvent<any,null> {
     let entity: any = event.value;
     if (this.config.onCreate && !entity[this.config.onCreateField]) {
       entity[this.config.onCreateField] = this.stampByFormat(this.config.format);

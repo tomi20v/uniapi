@@ -1,7 +1,7 @@
 import {IPluginHandlerDefinition, IPlugin} from "./IPlugin";
 import {PluginConfigInterface} from "./PluginConfigInterface";
-import {PluginEventInterface} from "./PluginEventInterface";
-import {Observable, ReplaySubject} from "rxjs/Rx";
+import {IPluginEvent} from "./IPluginEvent";
+import {Observable} from "rxjs/Rx";
 import {IInitDb} from "./IInitDb";
 
 export class PluginManager {
@@ -27,7 +27,7 @@ export class PluginManager {
   }
 
   registerGlobalPlugins(pluginConfigs: PluginConfigInterface[]) {
-    console.log('register global plugins', pluginConfigs);
+    // console.log('register global plugins', pluginConfigs);
     pluginConfigs.forEach(eachConfig => {
       this.globalPlugins.push(this.getInstance(eachConfig));
     });
@@ -56,24 +56,24 @@ export class PluginManager {
     return '' + s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
   }
 
-  withGlobalPlugins$(event: PluginEventInterface) {
+  withGlobalPlugins$(event: IPluginEvent<any, any>) {
     return Observable.from(this.globalPlugins)
+      .filter(plugin => plugin.config.enabled)
       .map(plugin => this.invokeHandle(plugin, event))
       .last();
   }
 
   private invokeHandle(
     plugin: IPlugin,
-    event: PluginEventInterface
+    event: IPluginEvent<any, any>
   ) {
     plugin.handlers.forEach(
       (def: IPluginHandlerDefinition) => {
         if (def.pattern.test(event.eventName)) {
-          // event = def.callback(event, plugin.config);
-          event = def.callback(event);
+          event = def.callback.call(plugin, event);
         }
       }
-    )
+    );
     return event;
   }
 

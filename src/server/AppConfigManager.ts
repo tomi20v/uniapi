@@ -14,7 +14,8 @@ export class AppConfigManager {
 
   public init() {
     this.appConfig = <Observable<AppConfig>>this.appConfigRepository
-      .findOne({_id: '$appConfig'});
+      .findOne({_id: '$appConfig'})
+      .catch(() => Observable.from([null]));
   }
 
 }
