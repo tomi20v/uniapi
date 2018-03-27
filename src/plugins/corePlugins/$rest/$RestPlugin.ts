@@ -1,10 +1,9 @@
-import {APlugin} from "../APlugin";
-import {IPluginHandlerDefinition} from "../IPlugin";
-import {IPluginEvent} from "../IPluginEvent";
-import {IEntityRequest, IEntityTarget} from "../../entity/EntityRouter";
+import {APlugin} from "../../plugin/APlugin";
+import {IPluginHandlerDefinition} from "../../plugin/IPlugin";
 import {$RestConfigInterface} from "./$RestConfigInterface";
-import {AbstractRepository} from "../../share/AbstractRepository";
+import {AbstractRepository} from "../../../share/AbstractRepository";
 import * as handlers from "./handlers/handlers";
+import {IPluginEvent2} from "../../pluginEvent/IPluginEvents";
 
 export class $RestPlugin extends APlugin {
 
@@ -15,6 +14,7 @@ export class $RestPlugin extends APlugin {
   readonly handlers: IPluginHandlerDefinition[] = [
     { pattern: /entity\.preRoute/, callback: this.onPreRoute },
     { pattern: /entity\.route/, callback: handlers.onRoute },
+    { pattern: /entity\.postroute/, callback: handlers.onPostroute },
     { pattern: /entity\.before/, callback: handlers.onBefore },
     { pattern: /entity\.validate/, callback: handlers.onValidate },
     { pattern: /entity\.execute/, callback: handlers.onExecute },
@@ -24,14 +24,13 @@ export class $RestPlugin extends APlugin {
     readonly config: $RestConfigInterface,
     readonly configHash: string
   ) {
-    super();
+    super(config, configHash);
   }
 
-  public onPreRoute(event: IPluginEvent<IEntityRequest,null>) {
-    // console.log('it happened in $rest plugin', event.eventName);
-    if (event.value.url.substr(-1) == '/') {
+  public onPreRoute(event: IPluginEvent2) {
+    if (event.request.url.substr(-1) == '/') {
       event.context[this.CONTEXT_HAS_TRAILING_SLASH] = true;
-      event.value.url = event.value.url.replace(/\/$/, '');
+      event.request.url = event.request.url.replace(/\/$/, '');
     }
     return event;
   }

@@ -1,6 +1,6 @@
-import {PluginConfigInterface} from "../PluginConfigInterface";
+import {IPluginConfig} from "../../IPluginConfig";
 
-export interface $TimestampConfigInterface extends PluginConfigInterface {
+export interface $TimestampConfigInterface extends IPluginConfig {
 
   onCreate: boolean;
   onCreateField: string;

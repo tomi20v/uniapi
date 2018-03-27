@@ -1,7 +1,7 @@
 import {IInitDb} from "./IInitDb";
-import {PluginConfigSchema} from "../config/model/PluginConfigSchema";
-import {AppConfig} from "../config/model/AppConfig";
-import {PluginConfigInterface} from "./PluginConfigInterface";
+import {PluginConfigSchema} from "../../config/model/PluginConfigSchema";
+import {AppConfig} from "../../config/model/AppConfig";
+import {IPluginConfig} from "../IPluginConfig";
 
 const _ = require('lodash');
 
@@ -10,7 +10,7 @@ export abstract class AInitDb implements IInitDb {
   protected abstract configSchema: PluginConfigSchema;
 
   /** these will be automatically registered into the default appConfig */
-  protected abstract defaultAppConfigs: PluginConfigInterface[];
+  protected abstract defaultAppConfigs: IPluginConfig[];
 
   initDbPluginConfigSchema(
     data: PluginConfigSchema[],
@@ -39,7 +39,7 @@ export abstract class AInitDb implements IInitDb {
       const pluginId = this.configSchema.$id;
       if (!_.filter(
         eachAppConfig.plugins,
-        (eachPlugin: PluginConfigInterface) => eachPlugin.pluginId === pluginId
+        (eachPlugin: IPluginConfig) => eachPlugin.pluginId === pluginId
       ).length) {
         this.defaultAppConfigs.forEach(eachPluginConfig => {
           eachAppConfig.plugins.push(eachPluginConfig)

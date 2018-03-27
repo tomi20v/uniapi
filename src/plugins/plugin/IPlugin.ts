@@ -1,5 +1,5 @@
-import {IPluginEvent} from "./IPluginEvent";
-import {PluginConfigInterface} from "./PluginConfigInterface";
+import {IPluginEvent} from "../pluginEvent/IPluginEvent";
+import {IPluginConfig} from "../IPluginConfig";
 
 export interface IPluginHandlerDefinition {
   pattern: RegExp;
@@ -9,7 +9,7 @@ export interface IPluginHandlerDefinition {
 export interface IPlugin {
 
   readonly handlers: IPluginHandlerDefinition[];
-  readonly config: PluginConfigInterface;
+  readonly config: IPluginConfig;
   readonly configHash: string;
 
 }

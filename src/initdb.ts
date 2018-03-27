@@ -12,7 +12,7 @@ import {ServerConfigManager} from "./server/ServerConfigManager";
 import {addIfNotFound} from "./share/Observable/AddIfNotFound";
 import {BootPluginsLocal} from "../config/boot/BootPluginsLocal";
 import {PluginManager} from "./plugins/PluginManager";
-import {IInitDb} from "./plugins/IInitDb";
+import {IInitDb} from "./plugins/initDb/IInitDb";
 import {TaskRunner} from "./share/TaskRunner";
 import clone = require("clone");
 
@@ -25,7 +25,7 @@ const repos = new RepositoryFactory(
   )
 );
 
-let pluginManager = new PluginManager();
+let pluginManager = new PluginManager(repos.entityConfigRepository());
 const bootPlugins = new BootPluginsLocal(pluginManager);
 bootPlugins.boot(true);
 

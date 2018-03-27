@@ -1,19 +1,14 @@
-import {IPluginEvent} from "../../IPluginEvent";
-import {IEntityTarget} from "../../../entity/EntityRouter";
+import {IPluginEvent} from "../../../pluginEvent/IPluginEvent";
 import {$RestConfigActions} from "../$RestConfigInterface";
+import {IEntityTarget} from "../../../pluginEvent/IPluginEvents";
 
 export function onExecute(
   event: IPluginEvent<IEntityTarget, IEntityTarget>
 ): IPluginEvent<IEntityTarget, IEntityTarget> {
   switch (event.value.method) {
     case $RestConfigActions.get:
-      event.value.data$ = this.entityRepository(event.value.entity)
-        .findById(event.value.entityId);
       break;
     case $RestConfigActions.getIndex:
-      event.value.data$ = this.entityRepository(event.value.entity)
-        .find({})
-        .toArray();
       break;
     case $RestConfigActions.create:
     case $RestConfigActions.update:

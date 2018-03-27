@@ -16,11 +16,11 @@ import {ConfigRouter} from "../config/ConfigRouter";
 export class ServerFactory {
 
   makeServer(config: ServerConfigInterface): Server {
-    const pluginManager = new PluginManager();
     const serverConfigManager = new ServerConfigManager();
     const repositoryFactory = new RepositoryFactory(
       new ConnectionFactory(serverConfigManager)
     );
+    const pluginManager = new PluginManager(repositoryFactory.entityConfigRepository());
     const appConfigManager = new AppConfigManager(
       repositoryFactory.appConfigRepository()
     );

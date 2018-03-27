@@ -1,6 +1,11 @@
-import {AInitDb} from "../AInitDb";
-import {PluginConfigSchema} from "../../config/model/PluginConfigSchema";
-import {$RestConfigActions, $RestConfigInterface, $RestConfigOnTrailingSlash} from "./$RestConfigInterface";
+import {AInitDb} from "../../initDb/AInitDb";
+import {PluginConfigSchema} from "../../../config/model/PluginConfigSchema";
+import {
+  $RestConfigActions,
+  $RestConfigInterface,
+  $RestConfigOnTrailingSlash,
+  $RestConfigPageSource, $RestConfigUnknownFields
+} from "./$RestConfigInterface";
 
 export class $RestInitDb extends AInitDb {
 
@@ -119,19 +124,26 @@ export class $RestInitDb extends AInitDb {
 
   protected defaultAppConfigs: $RestConfigInterface[] = [
     {
-      "pluginId": "$rest",
-      "description": "",
-      "enabled": true,
-      "getIndexAction": $RestConfigActions.getIndex,
-      "postIndexAction": $RestConfigActions.create,
-      "putIndexAction": $RestConfigActions.replaceIndex,
-      "deleteIndexAction": $RestConfigActions.deleteIndex,
-      "getAction": $RestConfigActions.get,
-      "postAction": $RestConfigActions.disabled,
-      "putAction": $RestConfigActions.replace,
-      "patchAction": $RestConfigActions.update,
-      "deleteAction": $RestConfigActions.delete,
-      "onTrailingSlash": $RestConfigOnTrailingSlash.add
+      pluginId: "$rest",
+      description: "",
+      enabled: true,
+      getIndexAction: $RestConfigActions.getIndex,
+      getIndexSearchEnabled: false,
+      getIndexSearchableFields: [],
+      getIndexPageSize: 0,
+      getIndexPageSource: $RestConfigPageSource.full,
+      postIndexAction: $RestConfigActions.create,
+      putIndexAction: $RestConfigActions.replaceIndex,
+      deleteIndexAction: $RestConfigActions.deleteIndex,
+      deleteIndexSearchEnabled: false,
+      deleteIndexSearchFields: [],
+      getAction: $RestConfigActions.get,
+      postAction: $RestConfigActions.disabled,
+      putAction: $RestConfigActions.replace,
+      patchAction: $RestConfigActions.update,
+      deleteAction: $RestConfigActions.delete,
+      onTrailingSlash: $RestConfigOnTrailingSlash.add,
+      unknownFields: $RestConfigUnknownFields.disabled,
     }
   ];
 

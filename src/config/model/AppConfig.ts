@@ -1,4 +1,4 @@
-import {PluginConfigInterface} from "../../plugins/PluginConfigInterface";
+import {IPluginConfig} from "../../plugins/IPluginConfig";
 
 export class AppConfig {
 
@@ -6,7 +6,7 @@ export class AppConfig {
         public _id: string,
         public serverName: string,
         public version: number,
-        public plugins: PluginConfigInterface[],
+        public plugins: IPluginConfig[],
         public tstamp?: number|null,
         public crstamp?: number|null
     ) {}

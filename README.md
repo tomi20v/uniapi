@@ -73,36 +73,59 @@ variables. Set them empty array [] if not needed.
 request lifecycle events
 ========================
 
-These are the events sent to the plugins while executing an entity request:
+These are the events sent to the plugins while executing an entity request.
+All events use the IPluginEvent interface, but fields are populated during
+the process. In all step I mark the fields which should be changed. Note that
+event.errors and event.context is always available for read/write
 
 entity.preroute
 ---------------
-*IPluginEvent<IEntityRequest,null>*
 
+- field: request
+- gets the request, and can modify it (eg remove used path part)
+- only global plugins invoked
 - set language per header or url
 - set authentication data per header or cookie or whatever
 
 entity.route
 ------------
-*IPluginEvent<IEntityTarget, IEntityRequest>*
 
-- define an action to be taken
-- mostly $rest plugin should take care of
+- field: target
+- chose an action to be taken
+- only global plugins invoked
+- handledBy should be set here or at most postroute. Any plugin canoverwrite
+handledBy if it can handle better the current request.
+- $rest plugin should take care of most cases
+
+entity.postroute
+-----------------
+
+- field: target
+- target.entityConfig is now available
+- finalize route and param fetching
+- after this step, the route matching should be final, except for special cases 
+when the matched route fails or has to be changed based on loaded data. 
+- eg. the versioning plugin mentioned before should add constraints in this step
+-beginning with this step, entity plugins are invoked too
 
 entity.before
 -------------
-*IPluginEvent<IEntityTarget, IEntityTarget>*
 
+- field: oldValue$
 - after a request is routed, set specific params for execution, or prepare data
-- if needed (eg update), will load current version into context.currentData for 
-validation
-- eg set db retrieve params based on language
-- eg set timestamps for updates or creates
+- load current version into context.currentData. This will be needed in most
+cases, for validation, or GET can return it directly later
+- eg. a special case would be a PUT to a resource with ID, which should be a 
+replace. However, if it does not exist, it becomes a create in the next step.
+- eg. a get or patch to a non existing ID can be found here and should rather 
+go to a 404
+// - eg set db retrieve params based on language
+// - eg set timestamps for updates or creates
 
 entity.validate
 ---------------
-*IPluginEvent<IEntityTarget, IEntityTarget>*
 
+- field: errors only
 - validate request before executing
 - confirm execution: any plugin that can generate output by current target in 
 value must event.value.isHandled = true
@@ -114,22 +137,24 @@ handler (@todo, currently possible errors are thrown after validation only )
 
 entity.execute
 ---------------
-*IPluginEvent<IEntityTarget, IEntityTarget>*
 
+- field: target.result
 - execute an action
 - event.value contains target state, event.oldValue contains current state
 
 entity.after
 ------------
-*IPluginEvent<IEntityTarget, IEntityTarget>*
 
-- do additional processing
-- event.value contains response data
+- field: target.result
+- do additional processing, eg. an aggregated sum field in another object has 
+to be updated, or update search index
+- build data for response
 - eg. join objects referenced by a field
 - eg. shape data (return only specific fields)
 
 entity.finish
 -------------
+
 - change response based on specific requirements
 - eg. translate fields or fill templates
 - eg. write log of what's been done
@@ -141,10 +166,75 @@ entity.error
 - will be called only in case of errors
 - $rest plugin is to prepare the error response normally
 
-entity.send
------------
-- send the response from assembled data
-- $rest plugin will send response in any case
+#example usecase
+url: /city/42
+method: patch
+
+### entity.preroute
+- auth plugin sets user data from jwt in header or cookie, and sets in context
+
+### entity.route
+- $rest eats up remaining event.target.urlParts and sets ~.entity, ~.entityId, and
+also pushes selector by id into ~.constraints
+- $rest sets incoming PATCH data in ~.data$ 
+- $rest also sets ~.method and ~.handledBy 
+
+### entity.postroute
+- 
+- as no more URL parts available, no further routing
+- auth plugin could check already here if user is authorized, skipping entity.before
+
+### entity.before
+- $rest loads current document into event.oldValue$, using params from 
+event.target.constraints
+- $rest plugin calculates resulting object and sets it in event.target.result
+- auth plugin sets updatedBy field in both event.target.data and event.target.result
+- $timestamp plugin sets updatedAt field in both event.target.data and event.target.result 
+
+### entity.validate
+- auth plugin checks if user is authorized to run the PATCH against the given entity
+- $rest plugin validates resulting object against entity schema
+
+### entity.execute
+- $rest plugin sends update with data in event.target.data
+
+### entity.after
+- $rest plugin reads back object (or not, depending on config)
+
+### entity.finish
+- $shaper plugin trims returned data in target.result
+
+#example usecase
+url: /city/42/en
+method: get
+
+### entity.preroute
+nothing
+
+### entity.route
+- $rest plugin recognizes entity name and id, same as previous
+
+### entity.postroute
+- local entity $translation plugin recognizes 'en' language tag, and clears it 
+from pathParts. Also sets language in context. (now it's doing it here because 
+this translation is now a shaping of a given entity, not another entity. This
+method is used when config is set to multiple fields per language method)
+
+### entity.before
+- $rest loads current document into event.oldValue$, using params from 
+event.target.constraints
+
+### entity.validate
+- nothing happens, it's a get request without auth or similar to be checked
+- only point of failure is an invalid entity name and/or id, but that should
+have had throuwn in entity.before
+
+### entity.execute
+- $rest copies oldData to target.result
+
+### entity.finish
+- $translation plugin filters translated fields to given language and maps 
+translations one level down
  
 transactions
 ============

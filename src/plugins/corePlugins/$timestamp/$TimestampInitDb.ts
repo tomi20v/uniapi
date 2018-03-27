@@ -1,5 +1,5 @@
-import {PluginConfigSchema} from "../../config/model/PluginConfigSchema";
-import {AInitDb} from "../AInitDb";
+import {PluginConfigSchema} from "../../../config/model/PluginConfigSchema";
+import {AInitDb} from "../../initDb/AInitDb";
 import {$TimestampConfigInterface} from "./$TimestampConfigInterface";
 
 export class $TimestampInitDb extends AInitDb {

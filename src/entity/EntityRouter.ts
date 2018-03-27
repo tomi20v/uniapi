@@ -1,22 +1,10 @@
 import {NextFunction, Request, Response} from "express-serve-static-core";
 import {PluginManager} from "../plugins/PluginManager";
-import {IPluginError, IPluginEvent} from "../plugins/IPluginEvent";
-import {IHttpRequest} from "../share/IHttpRequest";
-import {Observable, ReplaySubject} from "rxjs/Rx";
+import {Observable} from "rxjs/Rx";
 import {EntityConfigRepository} from "../config/repository/EntityConfigRepository";
-import {EntityError} from "./EntityError";
-
-export interface IEntityRequest extends IHttpRequest {}
-export interface IEntityTarget {
-  pathParts: string;
-  entity: string;
-  entityId: string;
-  method: string;
-  data$: Observable<any>;
-  isHandled?: boolean;
-}
-
-export interface IEntityValidationError extends IPluginError {}
+import {IEntityRequest, IEntityTarget, IPluginEvent2} from "../plugins/pluginEvent/IPluginEvents";
+import {IContext} from "../plugins/IContext";
+import {IPluginErrors} from "../plugins/plugin/IPluginErrors";
 
 export class EntityRouter {
 
@@ -27,84 +15,104 @@ export class EntityRouter {
 
   handle(req: Request, res: Response, next: NextFunction): any {
 
-    let request = <IEntityRequest>{
-      headers: req.headers,
-      url: req.url,
-      method: req.method,
-      params: req.params,
-      body: req.body
-    }
-    let context = {};
+    let originalEvent = <IPluginEvent2>{
+      eventName: 'entity.preRoute',
+      request: <IEntityRequest>{
+        headers: req.headers,
+        url: req.url,
+        method: req.method,
+        params: req.params,
+        body: req.body
+      },
+      target: null,
+      oldValue$: null,
+      errors: [],
+      context: <IContext> {}
+    };
     // console.log('original event', event);
-    let preRouted$ = this.pluginManager
-      .withGlobalPlugins$(<IPluginEvent<IEntityRequest,null>>{
-        eventName: 'entity.preRoute',
-        // oldValue: request,
-        // value: target,
-        value: request,
-        errors: [],
-        context: context
-      });
-    // this.dump(preRouted$);
-    let routed$ = preRouted$
-      .map(event => <IPluginEvent<IEntityTarget, IEntityRequest>> {
+    let onPreRoute$ = this.pluginManager.withGlobalPlugins$(originalEvent);
+    // this.dump(onPreRoute$);
+    let onRoute$ = onPreRoute$
+      .map(event => <IPluginEvent2> {
           eventName: 'entity.route',
-          value: <IEntityTarget>{
-            pathParts: event.value.url,
+          request: event.request,
+          target: <IEntityTarget>{
+            pathParts: event.request.url,
             entity: null,
             entityId: null,
+            entityConfig: null,
+            constraints: {},
             method: null,
-            data$: null
+            data: null,
+            handledBy: null
           },
-          oldValue: event.value,
+          oldValue$: null,
           errors: event.errors,
           context: event.context
       })
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
-    // this.dump(routed$, 'routed$');
-    let before$ = routed$
-      .map(event => <IPluginEvent<IEntityTarget, IEntityTarget>> {
+    // this.dump(onRoute$, 'onRoute$');
+    let onPostroute = onRoute$
+      .map(event => <IPluginEvent2> {
+        eventName: 'entity.postroute',
+        request: event.request,
+        target: event.target,
+        oldValue$: event.oldValue$,
+        errors: event.errors,
+        context: event.context
+      })
+      .flatMap(event => this.entityRepository.findById(event.target.entity)
+          .map(entityConfig => {
+            event.target.entityConfig = entityConfig;
+            return event;
+          })
+      )
+      .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
+      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entityId, event));
+    let onBefore$ = onPostroute
+      .map(event => <IPluginEvent2> {
         eventName: 'entity.before',
-        value: event.value,
-        oldValue: {
-          pathParts: event.value.pathParts,
-          entity: event.value.entity,
-          entityId: event.value.entityId,
-          method: null,
-          data$: null
-        },
+        request: event.request,
+        target: event.target,
+        oldValue$: null,
+        errors: event.errors,
+        context: event.context
+      })
+      .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
+      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entityId, event));
+    // this.dump(onBefore$, 'onBefore$');
+    let onValidate$ = onBefore$
+      .map(event => <IPluginEvent2> {
+        eventName: 'entity.validate',
+        request: event.request,
+        target: event.target,
+        oldValue$: event.oldValue$,
+        errors: event.errors,
+        context: event.context
+      })
+      .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
+      .map(event => this.throwErrors (event));
+    // this.dump(validate$, 'validate$');
+    let validated$ = onValidate$
+      .map((event: IPluginEvent2) => {
+        if (event.errors.filter(error => error.fatal).length) {
+          throw <IPluginErrors>{
+            errors: event.errors
+          };
+        }
+        return event;
+      });
+    let execute$ = validated$
+      .map(event => <IPluginEvent2> {
+        eventName: 'entity.execute',
+        request: event.request,
+        target: event.target,
+        oldValue$: event.oldValue$,
         errors: event.errors,
         context: event.context
       })
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
-    // this.dump(before$, 'before$');
-    let validate$ = before$
-      .map(event => <IPluginEvent<IEntityTarget, IEntityTarget>> {
-        eventName: 'entity.validate',
-        value: event.value,
-        oldValue: event.oldValue,
-        errors: event.errors,
-        context: event.context,
-        isHandled: false
-      })
-      .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
-      .map(event => {
-        if (!event.value.isHandled) {
-          throw new EntityError(404);
-        }
-        return event;
-      })
-      .map(event => this.throwErrors(event));
-    // this.dump(validate$, 'validate$');
-    let execute$ = validate$
-      .map(event => <IPluginEvent<any,any>> {
-        eventName: 'entity.execute',
-        value: event.value,
-        oldValue: event.oldValue,
-      })
-      .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
     this.dump(execute$, 'execute$');
-
 
     // map entity config or reference into context
 
@@ -114,7 +122,7 @@ export class EntityRouter {
     next();
   }
 
-  private throwErrors <T,U> (event: IPluginEvent<T, U>): IPluginEvent<T, U> {
+  private throwErrors (event: IPluginEvent2): IPluginEvent2 {
     if (event.errors.length > 0) {
       throw event.errors;
     }

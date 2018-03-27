@@ -1,8 +1,8 @@
-import {IPluginHandlerDefinition, IPlugin} from "../IPlugin";
-import {IPluginEvent} from "../IPluginEvent";
-import {AbstractSchema} from "../../model/AbstractSchema";
+import {IPluginHandlerDefinition, IPlugin} from "../../plugin/IPlugin";
+import {IPluginEvent} from "../../pluginEvent/IPluginEvent";
+import {AbstractSchema} from "../../../model/AbstractSchema";
 import {$TimestampConfigInterface} from "./$TimestampConfigInterface";
-import {APlugin} from "../APlugin";
+import {APlugin} from "../../plugin/APlugin";
 
 export class $TimestampPlugin extends APlugin implements IPlugin {
 
@@ -20,7 +20,7 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
     readonly config: $TimestampConfigInterface,
     readonly configHash: string
   ) {
-    super();
+    super(config, configHash);
   }
 
   public happened(event: IPluginEvent<any,any>) {

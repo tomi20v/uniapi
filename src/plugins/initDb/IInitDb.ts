@@ -1,6 +1,6 @@
-import {PluginConfigSchema} from "../config/model/PluginConfigSchema";
-import {AppConfig} from "../config/model/AppConfig";
-import {ILogger} from "../share/ILogger";
+import {PluginConfigSchema} from "../../config/model/PluginConfigSchema";
+import {AppConfig} from "../../config/model/AppConfig";
+import {ILogger} from "../../share/ILogger";
 
 export interface IInitDb {
 
