@@ -3,8 +3,6 @@ import {AppConfigManager} from "./AppConfigManager";
 import {EntityRouter} from "../entity/EntityRouter";
 import {PluginManager} from "../plugins/PluginManager";
 import {ServerConfigInterface} from "./ServerConfigInterface";
-import {ServerEventInterface} from "./ServerEventInterface";
-import {Subject} from "rxjs/Rx";
 import {UniApiApp} from "../UniApiApp";
 import {BootPluginsLocal} from "../../config/boot/BootPluginsLocal";
 import {Server} from "./Server";
@@ -12,22 +10,25 @@ import {RepositoryFactory} from "../config/RepositoryFactory";
 import {ConnectionFactory} from "../ConnectionFactory";
 import {ServerConfigManager} from "./ServerConfigManager";
 import {ConfigRouter} from "../config/ConfigRouter";
+import {EntityRepositoryManager} from "../entity/EntityRepositoryManager";
 
 export class ServerFactory {
 
   makeServer(config: ServerConfigInterface): Server {
-    const serverConfigManager = new ServerConfigManager();
+    const serverConfigManager = new ServerConfigManager(config);
+    const connectionFactory = new ConnectionFactory(serverConfigManager);
     const repositoryFactory = new RepositoryFactory(
-      new ConnectionFactory(serverConfigManager)
+      connectionFactory
     );
-    const pluginManager = new PluginManager(repositoryFactory.entityConfigRepository());
+    const pluginManager = new PluginManager(
+      repositoryFactory.entityConfigRepository(),
+      new EntityRepositoryManager(connectionFactory)
+    );
     const appConfigManager = new AppConfigManager(
       repositoryFactory.appConfigRepository()
     );
     const configRouter = new ConfigRouter(repositoryFactory);
     return new Server(
-      config,
-      new Subject<ServerEventInterface>(),
       this.uniApiApp(
         pluginManager,
         configRouter,
@@ -48,7 +49,6 @@ export class ServerFactory {
   ) {
     return new UniApiApp(
       express(),
-      new Subject<express.Application>(),
       serverConfigManager,
       appConfigManager,
       pluginManager,

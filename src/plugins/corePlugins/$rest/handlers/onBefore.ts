@@ -5,6 +5,7 @@ export function onBefore(
   event: IPluginEvent2
 ): IPluginEvent2 {
   switch (event.target.method) {
+    case $RestConfigActions.get:
     case $RestConfigActions.replace:
     case $RestConfigActions.create:
     case $RestConfigActions.delete:
@@ -14,13 +15,14 @@ export function onBefore(
       }
       event.oldValue$ = this.entityRepository(event.target.entity)
         // @TODO instead of plain findById I should build a query based on params previously set up in event.target.constraints
-        .findById(event.target.entityId);
+        .findById$(event.target.entityId);
       break;
+    case $RestConfigActions.getIndex:
     case $RestConfigActions.replaceIndex:
     case $RestConfigActions.deleteIndex:
       event.oldValue$ = this.entityRepository(event.target.entity)
         // @TODO I have to use fetch params previously set up in event.target.constraints
-        .find({});
+        .find$({});
       break;
   }
   return event;

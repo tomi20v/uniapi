@@ -1,16 +1,15 @@
-import {Observable} from "rxjs"
-import {DeleteCommandResult, InsertCommandResult, RxCollectionInterface, UpdateCommandResult} from "../db"
+import {DeleteCommandResult, InsertCommandResult, UpdateCommandResult} from "../db"
 import {FieldNameCleaner} from "./FieldNameCleaner";
-import {ReplaySubject} from "rxjs/Rx";
+import {Observable, ReplaySubject} from "rxjs";
 
 const _ = require('lodash');
 
 export abstract class AbstractRepository {
 
-  protected abstract mongoCollectionName: string;
+  protected abstract collectionName: string;
   protected abstract factory: (data: object) => any;
 
-  rxCollection = new ReplaySubject<RxCollectionInterface>();
+  rxCollection = new ReplaySubject<any>();
 
   constructor(
     private rxConnectionStream: Observable<any>,
@@ -18,7 +17,7 @@ export abstract class AbstractRepository {
   ) {
     this.rxConnectionStream.subscribe(
       (db) => this.rxCollection.next(
-        db.collection(this.mongoCollectionName)
+        db.collection(this.collectionName)
       ),
       () => null,
       () => this.rxCollection.complete()
@@ -26,15 +25,8 @@ export abstract class AbstractRepository {
   }
 
   findById(id: string): Observable<any> {
-    return this._catch(
-      this.findOne({_id: id})
-        .map(obj => {
-          if (!obj) {
-            throw null;
-          }
-          return obj;
-        })
-    );
+    console.log('findById', id);
+    return this.findOne({_id: id});
   }
 
   find(filter: any): Observable<any> {
@@ -54,7 +46,7 @@ export abstract class AbstractRepository {
         .flatMap(collection => collection.findOne(filter))
         .map(objData => {
           if (!objData) {
-            throw null;
+            throw new Error(this.collectionName + ' repository not found');
           }
           return this.factory(
             this.fieldNameCleaner.restoreFieldNames(objData)
@@ -82,13 +74,12 @@ export abstract class AbstractRepository {
     let dataSent = this.toDb(data);
     return this._catch(
       this.rxCollection
-        .map(collection => collection
+        .flatMap(collection => collection
           .updateOne({_id: id}, dataSent)
         )
-        .flatMap(r => r) // handle the promise returned
         .map((commandResult: UpdateCommandResult) => {
           if (commandResult.modifiedCount !== 1) {
-            throw commandResult.message;
+            throw new Error(this.collectionName + ' repository error:' + commandResult.message);
           }
           return dataSent;
         })
@@ -102,7 +93,7 @@ export abstract class AbstractRepository {
         .flatMap(collection => collection.insert(dataSent))
         .map((commandResult: InsertCommandResult) => {
           if (commandResult.insertedCount !== 1) {
-            throw commandResult.message;
+            throw new Error(this.collectionName + ' repository error:' + commandResult.message);
           }
           if (commandResult.insertedId) {
             dataSent[this._idField()] = commandResult.insertedId;

@@ -3,10 +3,11 @@ import {IPluginEvent} from "../../pluginEvent/IPluginEvent";
 import {AbstractSchema} from "../../../model/AbstractSchema";
 import {$TimestampConfigInterface} from "./$TimestampConfigInterface";
 import {APlugin} from "../../plugin/APlugin";
+import {EntityRepositoryManager} from "../../../entity/EntityRepositoryManager";
 
 export class $TimestampPlugin extends APlugin implements IPlugin {
 
-  static readonly id = '$timestamp';
+  readonly id = '$timestamp';
 
   readonly handlers: IPluginHandlerDefinition[] = [
     { pattern: /^schema\.compile$/, callback: this.addFieldsToSchema},
@@ -18,9 +19,10 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
 
   constructor(
     readonly config: $TimestampConfigInterface,
-    readonly configHash: string
+    readonly configHash: string,
+    protected entityRepositoryManager: EntityRepositoryManager
   ) {
-    super(config, configHash);
+    super(config, configHash, entityRepositoryManager);
   }
 
   public happened(event: IPluginEvent<any,any>) {

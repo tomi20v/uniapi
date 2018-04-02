@@ -3,12 +3,12 @@ import {AbstractRepository} from "../../share/AbstractRepository";
 
 export class EntityConfigRepository extends AbstractRepository {
 
-    mongoCollectionName: string = 'uaEntityConfig';
+  collectionName: string = 'uaEntityConfig';
 
-    factory: ((data: object) => EntityConfig) = EntityConfig.fromDb;
+  factory: ((data: object) => EntityConfig) = EntityConfig.fromDb;
 
-    create(entity: EntityConfig) {
-        return this._create(entity);
-    }
+  create(entity: EntityConfig) {
+    return this._create(entity);
+  }
 
 }

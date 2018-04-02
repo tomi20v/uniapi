@@ -15,17 +15,21 @@ import {PluginManager} from "./plugins/PluginManager";
 import {IInitDb} from "./plugins/initDb/IInitDb";
 import {TaskRunner} from "./share/TaskRunner";
 import clone = require("clone");
+import {EntityRepositoryManager} from "./entity/EntityRepositoryManager";
 
 const logger = console.log;
 
-const repos = new RepositoryFactory(
-  new ConnectionFactory(
-    new ServerConfigManager(),
-    logger
-  )
+const connectionFactory = new ConnectionFactory(
+  // to support user configs,
+  new ServerConfigManager({}),
+  logger
 );
+const repos = new RepositoryFactory(
+  connectionFactory
+);
+const entityRepositoryManager = new EntityRepositoryManager(connectionFactory);
 
-let pluginManager = new PluginManager(repos.entityConfigRepository());
+let pluginManager = new PluginManager(repos.entityConfigRepository(), entityRepositoryManager);
 const bootPlugins = new BootPluginsLocal(pluginManager);
 bootPlugins.boot(true);
 

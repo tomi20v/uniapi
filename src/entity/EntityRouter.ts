@@ -1,16 +1,19 @@
 import {NextFunction, Request, Response} from "express-serve-static-core";
 import {PluginManager} from "../plugins/PluginManager";
-import {Observable} from "rxjs/Rx";
+import {Observable} from "rxjs/Observable";
 import {EntityConfigRepository} from "../config/repository/EntityConfigRepository";
 import {IEntityRequest, IEntityTarget, IPluginEvent2} from "../plugins/pluginEvent/IPluginEvents";
 import {IContext} from "../plugins/IContext";
 import {IPluginErrors} from "../plugins/plugin/IPluginErrors";
+import {ILogger} from "../share/ILogger";
+
 
 export class EntityRouter {
 
   constructor(
     private pluginManager: PluginManager,
-    private entityRepository: EntityConfigRepository
+    private entityConfigRepository: EntityConfigRepository,
+    private logger: ILogger = console.log
   ) {}
 
   handle(req: Request, res: Response, next: NextFunction): any {
@@ -50,9 +53,13 @@ export class EntityRouter {
           errors: event.errors,
           context: event.context
       })
+      .map(event => {
+        this.logger('...executing ' + event.eventName);
+        return event;
+      })
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
     // this.dump(onRoute$, 'onRoute$');
-    let onPostroute = onRoute$
+    let onPostroute$ = onRoute$
       .map(event => <IPluginEvent2> {
         eventName: 'entity.postroute',
         request: event.request,
@@ -61,15 +68,30 @@ export class EntityRouter {
         errors: event.errors,
         context: event.context
       })
-      .flatMap(event => this.entityRepository.findById(event.target.entity)
-          .map(entityConfig => {
-            event.target.entityConfig = entityConfig;
-            return event;
-          })
+      .map(event => {
+        this.logger('...executing ' + event.eventName);
+        return event;
+      })
+      .flatMap(event => this.entityConfigRepository.findById(event.target.entity)
+        .map(entityConfig => {
+          event.target.entityConfig = entityConfig;
+          return event;
+        })
+        .catch(e => {
+          console.log('fck2', e);
+          return Observable.throw(e);
+        })
       )
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
-      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entityId, event));
-    let onBefore$ = onPostroute
+      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entity, event))
+      .map(event => {
+        this.logger('...!!!executing ' + event.eventName, event);
+        return event;
+      })
+    ;
+    // this.dump(onPostroute$, 'onPostroute$');
+    // next(); return;
+    let onBefore$ = onPostroute$
       .map(event => <IPluginEvent2> {
         eventName: 'entity.before',
         request: event.request,
@@ -78,8 +100,12 @@ export class EntityRouter {
         errors: event.errors,
         context: event.context
       })
+      .map(event => {
+        this.logger('...executing ' + event.eventName);
+        return event;
+      })
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
-      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entityId, event));
+      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entity, event));
     // this.dump(onBefore$, 'onBefore$');
     let onValidate$ = onBefore$
       .map(event => <IPluginEvent2> {
@@ -89,6 +115,10 @@ export class EntityRouter {
         oldValue$: event.oldValue$,
         errors: event.errors,
         context: event.context
+      })
+      .map(event => {
+        this.logger('...executing ' + event.eventName);
+        return event;
       })
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
       .map(event => this.throwErrors (event));
@@ -101,7 +131,11 @@ export class EntityRouter {
           };
         }
         return event;
-      });
+      })
+      .map(event => {
+      this.logger('...executing ' + event.eventName);
+      return event;
+    });
     let execute$ = validated$
       .map(event => <IPluginEvent2> {
         eventName: 'entity.execute',
@@ -111,8 +145,19 @@ export class EntityRouter {
         errors: event.errors,
         context: event.context
       })
+      .map(event => {
+        this.logger('...executing ' + event.eventName);
+        return event;
+      })
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
     this.dump(execute$, 'execute$');
+    let final$ = execute$
+      .catch(e => {
+        console.log('final', e);
+        throw e;
+      });
+    // final$.subscribe();
+    // this.dump(final$, 'final$');
 
     // map entity config or reference into context
 
@@ -132,8 +177,8 @@ export class EntityRouter {
   private dump(o: Observable<any>, msg: string = 'dumping, emitted:') {
     o.subscribe(
     emitted => console.log(msg, emitted),
-    e => console.log('err', e),
-    () => console.log('completed')
+    e => console.log(msg + ' ...ERRR', e),
+    () => console.log(msg + ' ...completed')
     );
 
   }

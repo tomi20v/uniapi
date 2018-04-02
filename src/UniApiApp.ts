@@ -11,9 +11,10 @@ import {ServerConfigManager} from "./server/ServerConfigManager";
 
 export class UniApiApp {
 
+  readonly appSubject = new Subject<express.Application>();
+
   constructor(
     public expressApp: express.Application,
-    public appSubject: Subject<express.Application>,
     private serverConfigManager: ServerConfigManager,
     private appConfigManager: AppConfigManager,
     private pluginManager: PluginManager,
@@ -23,7 +24,9 @@ export class UniApiApp {
 
   init() {
 
-    this.serverConfigManager.serverConfig.subscribe(
+    this.appSubject.next(this.expressApp);
+
+    this.serverConfigManager.serverConfig$.subscribe(
       (serverConfig: ServerConfigInterface) => {
 
         this.expressApp.disable('x-powered-by');

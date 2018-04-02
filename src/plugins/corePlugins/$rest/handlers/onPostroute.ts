@@ -1,11 +1,12 @@
 import {IPluginEvent2} from "../../../pluginEvent/IPluginEvents";
 import {$RestConfigActions} from "../$RestConfigInterface";
-import {isArray} from "rxjs/internal/util/isArray";
 import {IPluginErrors} from "../../../plugin/IPluginErrors";
+import {isArray} from "util";
 
 export function onPostroute(
   event: IPluginEvent2
 ): IPluginEvent2 {
+
   // we MUST have entity here indeed, but just in case...
   if (!event.target.entity || (event.target.handledBy !== this.id)) {
     return event;
@@ -94,14 +95,16 @@ export function onPostroute(
   }
 
   if (!handled) {
+    console.log('$rest did not handle');
     event.target.handledBy = null;
   }
 
   console.log(
-    'fetched data for: ',
+    'fetched request data for: ',
     event.target.entity,
     event.target.entityId,
-    event.target.handledBy
+    event.target.handledBy,
+    event.target.data
   );
 
   return event;

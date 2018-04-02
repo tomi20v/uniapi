@@ -1,5 +1,5 @@
-import {Observable} from "rxjs";
-const rxMongoExports = require('rxmongo');
+import {Observable} from "rxjs/Rx";
+// const rxMongoExports = require('rxmongo');
 
 interface InsertCommandResultInner {
   ok: number;

@@ -3,16 +3,16 @@ import {EntitySchema} from "../model/EntitySchema";
 
 export class SchemaRepository extends AbstractRepository {
 
-    mongoCollectionName: string = 'uaEntitySchema';
+  collectionName: string = 'uaEntitySchema';
 
-    factory: ((data: object) => EntitySchema) = EntitySchema.fromDb;
+  factory: ((data: object) => EntitySchema) = EntitySchema.fromDb;
 
-    create(schema: EntitySchema) {
-        return this._create(schema);
-    }
+  create(schema: EntitySchema) {
+    return this._create(schema);
+  }
 
-    protected _idField() {
-        return '$id';
-    }
+  protected _idField() {
+    return '$id';
+  }
 
 }

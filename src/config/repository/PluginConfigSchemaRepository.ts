@@ -3,16 +3,16 @@ import {PluginConfigSchema} from "../model/PluginConfigSchema";
 
 export class PluginConfigSchemaRepository extends AbstractRepository {
 
-    mongoCollectionName: string = 'uaPluginConfigSchema';
+  collectionName: string = 'uaPluginConfigSchema';
 
-    factory: ((data: object) => PluginConfigSchema) = PluginConfigSchema.fromDb;
+  factory: ((data: object) => PluginConfigSchema) = PluginConfigSchema.fromDb;
 
-    create(plugin: PluginConfigSchema) {
-        return this._create(plugin);
-    }
+  create(plugin: PluginConfigSchema) {
+    return this._create(plugin);
+  }
 
-    protected _idField() {
-        return '$id';
-    }
+  protected _idField() {
+    return '$id';
+  }
 
 }

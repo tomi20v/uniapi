@@ -17,8 +17,9 @@ export function onRoute(
     }
     const isEntityRequest = event.target.entityId !== null;
     let handled = true;
+    // console.log('methods', event.request.method, event.target.method);
     if (isEntityRequest) {
-      switch (event.target.method) {
+      switch (event.request.method) {
         case 'GET':
           event.target.method = this.config.getAction;
           break;
@@ -40,7 +41,7 @@ export function onRoute(
       }
     }
     else {
-      switch (event.target.method) {
+      switch (event.request.method) {
         case 'GET':
           event.target.method = this.config.getIndexAction;
           break;
@@ -60,10 +61,12 @@ export function onRoute(
       }
     }
     if (handled) {
-      event.target.handledBy = this.id;
+      // console.log('handled by $rest');
+      // @todo cannot access statid :id
+      event.target.handledBy = '$rest';
     }
   }
 
-  console.log('set entity and id: ', event.target.entity, event.target.entityId);
+  console.log('set entity, id, method: ', event.target.entity, event.target.entityId, event.target.method);
   return event;
 }

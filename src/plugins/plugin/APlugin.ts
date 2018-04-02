@@ -1,9 +1,11 @@
 import {IPlugin, IPluginHandlerDefinition} from "./IPlugin";
 import {IPluginConfig} from "../IPluginConfig";
+import {EntityRepositoryManager} from "../../entity/EntityRepositoryManager";
+import {EntityRepository} from "../../entity/EntityRepository";
 
 export abstract class APlugin implements IPlugin {
 
-  static readonly id;
+  readonly id;
 
   abstract readonly handlers: IPluginHandlerDefinition[];
   // abstract readonly config: IPluginConfig;
@@ -11,7 +13,15 @@ export abstract class APlugin implements IPlugin {
 
   constructor(
     readonly config: IPluginConfig,
-    readonly configHash: string
+    readonly configHash: string,
+    protected entityRepositoryManager: EntityRepositoryManager
   ) {}
+
+  protected entityRepository(entity: string): EntityRepository {
+    if (!entity) {
+      throw 'target entity missing';
+    }
+    return this.entityRepositoryManager.getRepository(entity);
+  }
 
 }

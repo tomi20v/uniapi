@@ -1,15 +1,15 @@
 import {APlugin} from "../../plugin/APlugin";
 import {IPluginHandlerDefinition} from "../../plugin/IPlugin";
 import {$RestConfigInterface} from "./$RestConfigInterface";
-import {AbstractRepository} from "../../../share/AbstractRepository";
 import * as handlers from "./handlers/handlers";
 import {IPluginEvent2} from "../../pluginEvent/IPluginEvents";
+import {EntityRepositoryManager} from "../../../entity/EntityRepositoryManager";
 
 export class $RestPlugin extends APlugin {
 
   private readonly CONTEXT_HAS_TRAILING_SLASH = 'hasTrailingSlash';
 
-  static readonly id = '$rest';
+  readonly id = '$rest';
 
   readonly handlers: IPluginHandlerDefinition[] = [
     { pattern: /entity\.preRoute/, callback: this.onPreRoute },
@@ -22,9 +22,10 @@ export class $RestPlugin extends APlugin {
 
   constructor(
     readonly config: $RestConfigInterface,
-    readonly configHash: string
+    readonly configHash: string,
+    protected entityRepositoryManager: EntityRepositoryManager
   ) {
-    super(config, configHash);
+    super(config, configHash, entityRepositoryManager);
   }
 
   public onPreRoute(event: IPluginEvent2) {
@@ -33,20 +34,6 @@ export class $RestPlugin extends APlugin {
       event.request.url = event.request.url.replace(/\/$/, '');
     }
     return event;
-  }
-
-  /**
-   * @todo implement to get a repository for the target entity
-   */
-  private entityRepository(entity: string): AbstractRepository {
-    // if (!entity) {
-    //   throw 'target entity missing';
-    // }
-    // const repository = ...;
-    // if (repository === null) {
-    //   throw 'repository is null';
-    // }
-    return null;
   }
 
 }

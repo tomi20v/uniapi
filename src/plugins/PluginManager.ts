@@ -1,24 +1,11 @@
 import {IPluginHandlerDefinition, IPlugin} from "./plugin/IPlugin";
 import {IPluginConfig} from "./IPluginConfig";
-import {IPluginEvent} from "./pluginEvent/IPluginEvent";
 import {Observable} from "rxjs/Rx";
 import {IInitDb} from "./initDb/IInitDb";
 import {EntityConfigRepository} from "../config/repository/EntityConfigRepository";
 import {EntityConfig} from "../config/model/EntityConfig";
-import {APlugin} from "./plugin/APlugin";
 import {IPluginEvent2} from "./pluginEvent/IPluginEvents";
-
-class $NullPlugin extends APlugin {
-  readonly config: IPluginConfig;
-  readonly configHash: string;
-  readonly handlers: IPluginHandlerDefinition[] = [
-    { pattern: /./, callback: this.handle}
-  ];
-  handle(event: IPluginEvent<any, any>) {
-    console.log('$nullPlugin.handle', event.eventName);
-    return event;
-  }
-}
+import {EntityRepositoryManager} from "../entity/EntityRepositoryManager";
 
 export class PluginManager {
 
@@ -26,21 +13,12 @@ export class PluginManager {
   private pluginClasses: object = {};
   private plugins: object = {};
   private globalPlugins: IPlugin[] = [];
-  /** I need at least one enabled plugin */
-  private nullPlugin: $NullPlugin;
 
+  /** I need at least one enabled plugin */
   constructor(
-    private entityRepository: EntityConfigRepository
-  ) {
-    const $nullConfig = <IPluginConfig>{
-      pluginId: '$null',
-      enabled: true
-    };
-    this.nullPlugin = new $NullPlugin(
-      $nullConfig,
-      this.configHash($nullConfig)
-    );
-  }
+    private entityConfigRepository: EntityConfigRepository,
+    private entityRepositoryManager: EntityRepositoryManager
+  ) {}
 
   registerPlugin(
     pluginId,
@@ -75,24 +53,20 @@ export class PluginManager {
       .last();
   }
 
-  // withEntityPlugins$(entityId, event: IPluginEvent<any, any>) {
   withEntityPlugins$(entityId, event: IPluginEvent2): Observable<IPluginEvent2> {
     // get entity by id. note entityId might be empty if the routing regexp hasn't been matched
-    return this.entityRepository.findById(entityId)
-      // get entity's pluginconfigs
+    return this.entityConfigRepository.findById(entityId)
+    // get entity's pluginconfigs
       .flatMap((entityConfig: EntityConfig) => entityConfig.plugins)
       // map them to plugininstances
       .map((pluginConfig: IPluginConfig) => this.getInstance(pluginConfig))
-      // continue with empty stream onerror
-      .catch(() => Observable.from([]))
-      // add $nullPlugin to ensure at least oneenabled plugin
-      .concat(() => Observable.from([this.nullPlugin]))
       // filter disabled plugins
       .filter((plugin: IPlugin) => plugin.config.enabled)
       // send event to all plugins
       .map(plugin => this.invokeHandle(plugin, event))
       // return last result which should be an event
-      .last();
+      .last()
+      .catch(() => [event]);
   }
 
   private configHash(config): string {
@@ -126,7 +100,7 @@ export class PluginManager {
         console.log('ignoring unknown plugin: ', pluginClass);
       }
       else {
-        plugin = new pluginClass(pluginConfig, hash);
+        plugin = new pluginClass(pluginConfig, hash, this.entityRepositoryManager);
         this.plugins[hash] = plugin;
       }
     }

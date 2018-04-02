@@ -1,5 +1,5 @@
 import {Response} from "express";
-import {Observable} from "rxjs";
+import {Observable} from "rxjs/Rx";
 export class Rest {
 
   static subscribeToOne(

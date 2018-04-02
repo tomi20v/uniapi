@@ -1,8 +1,11 @@
 import {APlugin} from "../../plugin/APlugin";
 import {IPluginHandlerDefinition} from "../../plugin/IPlugin";
-import {IPluginPrerouteEvent} from "../../pluginEvent/IPluginEvents";
+import {IPluginEvent2} from "../../pluginEvent/IPluginEvents";
+import {EntityRepositoryManager} from "../../../entity/EntityRepositoryManager";
 
 export class $TranslationPlugin extends APlugin {
+
+  readonly id = '$translation';
 
   private readonly CONTEXT_LANGUAGES = "contextLanguages";
 
@@ -13,14 +16,15 @@ export class $TranslationPlugin extends APlugin {
   constructor(
     // readonly config: $TranslationPluginConfigInterface,
     readonly config: any,
-    readonly configHash: string
+    readonly configHash: string,
+    protected entityRepositoryManager: EntityRepositoryManager
   ) {
-    super(config, configHash);
+    super(config, configHash, entityRepositoryManager);
   }
 
   private onEntityPreRoute(
-    event: IPluginPrerouteEvent
-  ): IPluginPrerouteEvent {
+    event: IPluginEvent2
+  ): IPluginEvent2 {
     if (this.config.requestLanguageOn == 'urlPart') {
       this.setRequestLangaugeFromUrl(event);
     }
@@ -31,18 +35,18 @@ export class $TranslationPlugin extends APlugin {
   }
 
   private setRequestLangaugeFromUrl(
-    event: IPluginPrerouteEvent
+    event: IPluginEvent2
   ) {
     const pattern = /^(\/[a-z]{2})\/.+$/;
-    const lang = pattern.exec(event.value.url);
+    const lang = pattern.exec(event.target.pathParts);
     if (lang !== null) {
       event.context[this.CONTEXT_LANGUAGES] = this.withDefaultLang([lang[1]]);
-      event.value.url = lang[2];
+      event.target.pathParts = lang[2];
     }
   }
 
   private setRequestLanguageFromHeaders(
-    event: IPluginPrerouteEvent
+    event: IPluginEvent2
   ) {
     // @todo implement
     return this.withDefaultLang([]);

@@ -16,7 +16,7 @@ export interface IEntityTarget {
   method: string;
   data: any;
   handledBy: string;
-  result: object;
+  result$: Observable<any>;
 }
 
 export interface IPluginEvent2 {
