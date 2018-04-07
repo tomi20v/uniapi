@@ -281,3 +281,9 @@ http://localhost:4200/myEntity/ (get, put, post)
 http://localhost:4200/myEntity/12345 (get, put, patch, delete)
 
 180405 03:22 first successful GET /rest/test/ answer
+
+@TODO
+=====
+
+$restPlugin
+	numeric _id (has to be parseFloat'ed before sending to DB)

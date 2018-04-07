@@ -1,0 +1,117 @@
+{
+  "_id": "$rest",
+  "definitions": {
+    "actions": {
+      "enum": [
+        "disabled",
+        "index",
+        "get",
+        "create",
+        "update",
+        "replace"
+      ]
+    },
+    "onTrailingSlash": {
+      "enum": [
+        "disabled",
+        "redirect",
+        "accept"
+      ]
+    }
+  },
+  "_$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "rest core plugin",
+  "properties": {
+    "pluginId": {
+      "type": "string",
+      "enum": [
+        "$rest"
+      ],
+      "title": "Plugin ID",
+      "default": "$rest"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Can add description about what this plugin does. Eg. when the same plugin is used more than once"
+    },
+    "getIndexAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/ path GET request",
+      "default": "getIndex"
+    },
+    "postIndexAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/ path POST request",
+      "default": "create"
+    },
+    "putIndexAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/ path PUT request",
+      "default": "replaceIndex"
+    },
+    "deleteIndexAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/ path DELETE request",
+      "default": "deleteIndex"
+    },
+    "getAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/id path GET request",
+      "default": "get"
+    },
+    "putAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/id path PUT request",
+      "default": "replace"
+    },
+    "postAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/id path POST request",
+      "default": "disabled"
+    },
+    "patchAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/id path PATCH request",
+      "default": "update"
+    },
+    "deleteAction": {
+      "_$ref": "#/definitions/actions",
+      "type": "string",
+      "title": "action on entity/id path DELETE request",
+      "default": "delete"
+    },
+    "onTrailingSlash": {
+      "type": "string",
+      "title": "How to treat requests with trailing slash",
+      "description": "options are: disabled|redirect|accept|require\n  disabled - will return 404 on trailing slash requests\n  remove - will redirect to url WITHOUT trailing slash if present\n  add - will redirect to url WITH trailing slash if none\n  accept - will accept urls both with or without trailing slash\n  require - only urls with trailing slash will be accepted",
+      "default": "require"
+    }
+  },
+  "required": [
+    "pluginId",
+    "description",
+    "getIndexAction",
+    "postIndexAction",
+    "putIndexAction",
+    "deleteIndexAction",
+    "getAction",
+    "putAction",
+    "postAction",
+    "patchAction",
+    "deleteAction",
+    "onTrailingSlash"
+  ],
+  "_type": "Object",
+  "tstamp": 1521299832,
+  "crstamp": 1521299832
+}

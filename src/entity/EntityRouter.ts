@@ -143,7 +143,7 @@ export class EntityRouter {
         return event;
       })
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
-    this.dump(execute$, 'execute$');
+    // this.dump(execute$, 'execute$');
     let final$ = execute$
       .catch(e => {
         console.log('final', e);
@@ -163,10 +163,15 @@ export class EntityRouter {
           event.target.result$
             .subscribe(
               result => {
-                res.send(result);
+                if (result.data === null) {
+                  res.status(404);
+                  next();
+                }
+                else {
+                  res.send(result);
+                }
               },
               err => {
-                console.log('err1', err);
                 res.status(500);
                 next();
               }
@@ -174,7 +179,6 @@ export class EntityRouter {
         }
       },
       err => {
-        console.log('err', err);
         res.status(500);
         next();
       }
@@ -185,7 +189,7 @@ export class EntityRouter {
     // console.log('NEXXXXXXXXT');
   }
 
-  private throwErrors (event: IPluginEvent2): IPluginEvent2 {
+  private throwErrors(event: IPluginEvent2): IPluginEvent2 {
     if (event.errors.length > 0) {
       throw event.errors;
     }

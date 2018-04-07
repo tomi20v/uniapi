@@ -1,6 +1,6 @@
 export class EntityError {
   constructor(
-    readonly code: number,
+    readonly status: number,
     readonly error?: string
   ) {}
 }

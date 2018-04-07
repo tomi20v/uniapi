@@ -16,19 +16,16 @@ export function onBefore(
       if (!event.target.entityId.length) {
         throw 'target entity id missing';
       }
-      let repo = this.entityRepository(event.target.entity);
-      event.oldValue$ = repo
+      event.oldValue$ = this.entityRepository(event.target.entity)
         // @TODO instead of plain findById I should build a query based on params previously set up in event.target.constraints
-        // .findById$(event.target.entityId);
-        // .find$({_id: event.target.entityId});
-        .find$({_id: event.target.entityId});
+        .find$(event.target.constraints);
       break;
     case $RestConfigActions.getIndex:
     case $RestConfigActions.replaceIndex:
     case $RestConfigActions.deleteIndex:
       event.oldValue$ = this.entityRepository(event.target.entity)
         // @TODO I have to use fetch params previously set up in event.target.constraints
-        .find$({});
+        .find$(event.target.constraints);
       break;
   }
   return event;

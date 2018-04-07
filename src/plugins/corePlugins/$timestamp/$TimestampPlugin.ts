@@ -26,8 +26,7 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
   }
 
   public happened(event: IPluginEvent<any,any>) {
-    // console.log('it happened', event.eventName, event.context);
-    console.log('it happened in $timestamp plugin', event.eventName);
+    // console.log('it happened in $timestamp plugin', event.eventName);
     return event;
   }
 

@@ -7,6 +7,7 @@ import {AppConfig} from "./config/model/AppConfig";
 import {PluginManager} from "./plugins/PluginManager";
 import {ServerConfigInterface} from "./server/ServerConfigInterface";
 import {ServerConfigManager} from "./server/ServerConfigManager";
+import {EntityError} from "./entity/EntityError";
 // import * as compression from 'compression';
 
 export class UniApiApp {
@@ -98,10 +99,15 @@ export class UniApiApp {
   private initErrorHandling() {
 
     // catch 404 and forward to error handler
-    this.expressApp.use(function(req: express.Request, res: express.Response, next) {
-      let err = new Error('Not Found');
-      next(err);
-    });
+    this.expressApp.use(
+      function(
+        req: express.Request,
+        res: express.Response,
+        next
+      ) {
+        let err = new EntityError(404, 'Not Found');
+        next(err);
+      });
 
     // production error handler
     // no stacktrace leaked to user
@@ -112,8 +118,7 @@ export class UniApiApp {
         res: express.Response,
         next: express.NextFunction
       ) {
-
-        res.status(err.status || 500);
+        res.status(err.status || res.statusCode || 500);
         res.json({
           error: {},
           message: err.message

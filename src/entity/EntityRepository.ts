@@ -19,7 +19,7 @@ export class EntityRepository {
 
   find$(filter: any): Observable<any> {
     return this.rxCollection
-      .flatMap(collection => collection.find(filter));
+      .flatMap(collection => collection.find(filter).toArray());
   }
 
   create$<T>(data: T): Observable<T> {
