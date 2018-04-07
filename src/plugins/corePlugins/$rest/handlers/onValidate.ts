@@ -4,6 +4,9 @@ import {IPluginEvent2} from "../../../pluginEvent/IPluginEvents";
 export function onValidate(
   event: IPluginEvent2
 ): IPluginEvent2 {
+  if (event.target.handledBy !== this.id) {
+    return event;
+  }
   switch (event.target.method) {
     case $RestConfigActions.replace:
     case $RestConfigActions.delete:

@@ -87,57 +87,80 @@
     ]
   },
   {
-      "$id": "$user",
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "definitions": {},
-      "title": "template: User",
-      "type": "object",
-      "properties": {
-        "email": {
-          "$id": "/properties/email",
-          "type": "string",
-          "title": "Email",
-          "default": "",
-          "examples": [
-            "no@ema.il"
-          ]
-        },
-        "username": {
-          "$id": "/properties/username",
-          "type": "string",
-          "title": "Username",
-          "default": "",
-          "examples": [
-            "iamtom"
-          ]
-        },
-        "password": {
-          "$id": "/properties/password",
-          "type": "string",
-          "title": "Password",
-          "default": "",
-          "examples": [
-            "123456"
-          ]
-        },
-        "lastLogin": {
-          "$id": "/properties/lastLogin",
-          "type": "integer",
-          "title": "Last login time",
-          "default": 0,
-          "examples": [
-            1605093071
-          ]
-        },
-        "some": {
-          "$id": "/properties/some",
-          "type": "string",
-          "title": "Some example field",
-          "default": "",
-          "examples": [
-            "field"
-          ]
-        }
+    "$id": "$user",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {},
+    "title": "template: User",
+    "type": "object",
+    "properties": {
+      "email": {
+        "$id": "/properties/email",
+        "type": "string",
+        "title": "Email",
+        "default": "",
+        "examples": [
+          "no@ema.il"
+        ]
+      },
+      "username": {
+        "$id": "/properties/username",
+        "type": "string",
+        "title": "Username",
+        "default": "",
+        "examples": [
+          "iamtom"
+        ]
+      },
+      "password": {
+        "$id": "/properties/password",
+        "type": "string",
+        "title": "Password",
+        "default": "",
+        "examples": [
+          "123456"
+        ]
+      },
+      "lastLogin": {
+        "$id": "/properties/lastLogin",
+        "type": "integer",
+        "title": "Last login time",
+        "default": 0,
+        "examples": [
+          1605093071
+        ]
+      },
+      "some": {
+        "$id": "/properties/some",
+        "type": "string",
+        "title": "Some example field",
+        "default": "",
+        "examples": [
+          "field"
+        ]
       }
-    }
+    },
+    "required": [
+      "email",
+      "username",
+      "password"
+    ]
+  },
+  {
+    "$id": "$test",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {},
+    "title": "template: Test",
+    "type": "object",
+    "properties": {
+      "field1": {
+        "$id": "/properties/field1",
+        "type": "string",
+        "title": "field #1",
+        "default": ""
+      }
+    },
+    "required": [
+      "field1"
+    ]
+  }
 ]

@@ -72,6 +72,9 @@ const taskRunner = new TaskRunner({
     .find({_id: {$regex: /^\$/}})
     .flatMap(each => repos.entityConfigRepository().remove(each._id))
     .toArray()
+    .flatMap(each => repos.entityConfigRepository().find({_id: {$regex: /^test$/}}))
+    .flatMap(each => repos.entityConfigRepository().remove(each._id))
+    .toArray()
     .flatMap(r => <any>entityConfigs)
     .flatMap((each: EntityConfig) => repos.entityConfigRepository().create(each)),
   'entitySchema init': repos.entitySchemaRepository()

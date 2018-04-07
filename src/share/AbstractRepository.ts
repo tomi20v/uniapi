@@ -25,7 +25,6 @@ export abstract class AbstractRepository {
   }
 
   findById(id: string): Observable<any> {
-    console.log('findById', id);
     return this.findOne({_id: id});
   }
 

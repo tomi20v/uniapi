@@ -47,7 +47,8 @@ export class EntityRouter {
             constraints: {},
             method: null,
             data: null,
-            handledBy: null
+            handledBy: null,
+            result$: Observable.from([null])
           },
           oldValue$: null,
           errors: event.errors,
@@ -77,20 +78,12 @@ export class EntityRouter {
           event.target.entityConfig = entityConfig;
           return event;
         })
-        .catch(e => {
-          console.log('fck2', e);
-          return Observable.throw(e);
-        })
+        .catch(e => Observable.throw(e))
       )
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
       .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entity, event))
-      .map(event => {
-        this.logger('...!!!executing ' + event.eventName, event);
-        return event;
-      })
     ;
     // this.dump(onPostroute$, 'onPostroute$');
-    // next(); return;
     let onBefore$ = onPostroute$
       .map(event => <IPluginEvent2> {
         eventName: 'entity.before',
@@ -133,9 +126,9 @@ export class EntityRouter {
         return event;
       })
       .map(event => {
-      this.logger('...executing ' + event.eventName);
-      return event;
-    });
+        this.logger('...executing ' + event.eventName);
+        return event;
+      });
     let execute$ = validated$
       .map(event => <IPluginEvent2> {
         eventName: 'entity.execute',
@@ -160,11 +153,36 @@ export class EntityRouter {
     // this.dump(final$, 'final$');
 
     // map entity config or reference into context
+    final$.subscribe(
+      (event: IPluginEvent2) => {
+        if (!event.target.handledBy) {
+          res.status(404);
+          next();
+        }
+        else {
+          event.target.result$
+            .subscribe(
+              result => {
+                res.send(result);
+              },
+              err => {
+                console.log('err1', err);
+                res.status(500);
+                next();
+              }
+            )
+        }
+      },
+      err => {
+        console.log('err', err);
+        res.status(500);
+        next();
+      }
+    )
 
     // stream GET POST etc plugins here
 
     // console.log('NEXXXXXXXXT');
-    next();
   }
 
   private throwErrors (event: IPluginEvent2): IPluginEvent2 {

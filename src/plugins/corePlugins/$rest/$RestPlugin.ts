@@ -18,7 +18,8 @@ export class $RestPlugin extends APlugin {
     { pattern: /entity\.before/, callback: handlers.onBefore },
     { pattern: /entity\.validate/, callback: handlers.onValidate },
     { pattern: /entity\.execute/, callback: handlers.onExecute },
-  ]
+    { pattern: /entity\.after/, callback: handlers.onAfter },
+  ];
 
   constructor(
     readonly config: $RestConfigInterface,

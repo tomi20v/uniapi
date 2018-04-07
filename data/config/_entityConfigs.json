@@ -4,15 +4,23 @@
     "name" : "Address",
     "plugins": [],
     "schema" : "$address",
-    "crstamp": 1515290100,
-    "tstamp": 1515290200
+    "crstamp": null,
+    "tstamp": null
   },
   {
     "_id" : "$user",
     "name" : "User",
     "plugins": [],
     "schema" : "$user",
-    "crstamp": 1515260100,
-    "tstamp": 1515260200
+    "crstamp": null,
+    "tstamp": null
+  },
+  {
+    "_id": "test",
+    "name": "Test",
+    "plugins": [],
+    "schema": "$test",
+    "crstamp": null,
+    "tstamp": null
   }
 ]
