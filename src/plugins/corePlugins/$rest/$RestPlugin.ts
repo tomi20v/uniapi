@@ -14,6 +14,7 @@ export class $RestPlugin extends APlugin {
     { pattern: /entity\.preRoute/, callback: handlers.onPreRoute },
     { pattern: /entity\.route/, callback: handlers.onRoute },
     { pattern: /entity\.postroute/, callback: handlers.onPostroute },
+    { pattern: /entity\.load/, callback: handlers.onLoad },
     { pattern: /entity\.before/, callback: handlers.onBefore },
     { pattern: /entity\.validate/, callback: handlers.onValidate },
     { pattern: /entity\.execute/, callback: handlers.onExecute },

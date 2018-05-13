@@ -1,8 +1,8 @@
-import {IPluginEvent2} from "../../../pluginEvent/IPluginEvents";
+import {IPluginEntityEvent} from "../../../pluginEvent/IPluginEntityEvent";
 
 export function onPreRoute(
-  event: IPluginEvent2
-): IPluginEvent2 {
+  event: IPluginEntityEvent
+): IPluginEntityEvent {
 
   if (event.request.url.substr(-1) == '/') {
     event.context[this.CONTEXT_HAS_TRAILING_SLASH] = true;

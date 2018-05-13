@@ -1,31 +1,38 @@
 import {$RestConfigActions} from "../$RestConfigInterface";
-import {IPluginEvent2} from "../../../pluginEvent/IPluginEvents";
+import {IEntityValue, IPluginEntityEvent} from "../../../pluginEvent/IPluginEntityEvent";
+import {Observable} from "rxjs/Rx";
 
 export function onBefore(
-  event: IPluginEvent2
-): IPluginEvent2 {
+  event: IPluginEntityEvent
+): IPluginEntityEvent {
   if (event.target.handledBy !== this.id) {
     return event;
   }
   switch (event.target.method) {
-    case $RestConfigActions.get:
-    case $RestConfigActions.replace:
-    case $RestConfigActions.create:
-    case $RestConfigActions.delete:
-    case $RestConfigActions.update:
-      if (!event.target.entityId.length) {
-        throw 'target entity id missing';
-      }
-      event.oldValue$ = this.entityRepository(event.target.entity)
-        // @TODO instead of plain findById I should build a query based on params previously set up in event.target.constraints
-        .find$(event.target.constraints);
-      break;
     case $RestConfigActions.getIndex:
+      break;
     case $RestConfigActions.replaceIndex:
+      // event.target.targetValue$ = event.target.oldValue$
+      //   .map((oldValue: IEntityValue) => {
+      //     console.log('onbefore ', oldValue);
+      //     return oldValue.value
+      //   });
+      break;
     case $RestConfigActions.deleteIndex:
-      event.oldValue$ = this.entityRepository(event.target.entity)
-        // @TODO I have to use fetch params previously set up in event.target.constraints
-        .find$(event.target.constraints);
+      break;
+    case $RestConfigActions.create:
+      event.target.targetValue$ = Observable.from([event.target.inData]);
+      break;
+    case $RestConfigActions.get:
+      break;
+    case $RestConfigActions.replace:
+      event.target.targetValue$ = Observable.from([event.target.inData]);
+      break;
+    case $RestConfigActions.update:
+      event.target.targetValue$ = event.target.oldValue$
+        .map((oldValue: IEntityValue) => oldValue.value);
+      break;
+    case $RestConfigActions.delete:
       break;
   }
   return event;

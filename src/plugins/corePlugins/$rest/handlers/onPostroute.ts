@@ -1,64 +1,62 @@
-import {IPluginEvent2} from "../../../pluginEvent/IPluginEvents";
+import {IPluginEntityEvent} from "../../../pluginEvent/IPluginEntityEvent";
 import {$RestConfigActions} from "../$RestConfigInterface";
 import {IPluginErrors} from "../../../plugin/IPluginErrors";
 import {isArray} from "util";
 
 export function onPostroute(
-  event: IPluginEvent2
-): IPluginEvent2 {
+  event: IPluginEntityEvent
+): IPluginEntityEvent {
 
   // we MUST have entity here indeed, but just in case...
-  if (!event.target.entity || (event.target.handledBy !== this.id)) {
+  if (!event.target.entityName || (event.target.handledBy !== this.id)) {
     return event;
   }
   if (!event.target.entityConfig) {
-    throw '@todo no entityconfig for ' + event.target.entity + ' in $restPlugin onPostroute';
+    throw '@todo no entityconfig for ' + event.target.entityName + ' in $restPlugin onPostroute';
   }
 
   const isEntityRequest = event.target.entityId !== null;
   let handled = true;
 
+  // this is fixed to be _id - known limitation
   const idField = '_id';
 
   // @todo should I filter incoming data here??? eg. no unknown fields in updates
+  // @NO, those should be found in the validation
 
-  if (isEntityRequest) {
+  // if (isEntityRequest) {
     switch (event.target.method) {
       case $RestConfigActions.get:
-        event.target.data = event.request.params;
+        event.target.inData = event.request.params;
         event.target.constraints[idField] = event.target.entityId;
-        // this would be a search which also should go to the collection
-        //  resource not the entity
-        // Object.keys(event.target.data).forEach(eachKey =>
-        //   event.target.constraints[eachKey] = event.target.data[eachKey]);
         break;
       // note this can be a create
       case $RestConfigActions.replace:
       case $RestConfigActions.update:
         // @todo do I need a json decode?
-        event.target.data = event.request.body;
+        event.target.inData = event.request.body;
         event.target.constraints[idField] = event.target.entityId;
         break;
       case $RestConfigActions.delete:
         event.target.constraints[idField] = event.target.entityId;
         break;
-      default:
-        handled = false;
-    }
-    console.log('set data for ' + event.target.method, event.target.data);
-    console.log('set constraints for ' + event.target.method, event.target.constraints);
-  }
-  else {
-    switch (event.target.method) {
+  //     default:
+  //       handled = false;
+  //   }
+  //   console.log('set data for ' + event.target.method, event.target.inData);
+  //   console.log('set constraints for ' + event.target.method, event.target.constraints);
+  // }
+  // else {
+  //   switch (event.target.method) {
       case $RestConfigActions.getIndex:
-        event.target.data = event.request.params;
+        event.target.inData = event.request.params;
         if (this.config.getIndexSearchEnabled) {
           setConstraintsFromParams(event, this.config.getIndexSearchableFields);
         }
         break;
       case $RestConfigActions.replaceIndex:
-        event.target.data = event.request.body;
-        if (!isArray(event.target.data)) {
+        event.target.inData = event.request.body;
+        if (!isArray(event.target.inData)) {
           throw <IPluginErrors> {
             errors: [
               {
@@ -71,17 +69,20 @@ export function onPostroute(
         }
         break;
       case $RestConfigActions.deleteIndex:
-        event.target.data = event.request.params;
+        event.target.inData = event.request.params;
         if (this.config.deleteIndexSearchEnabled) {
           setConstraintsFromParams(event, this.config.deleteIndexSearchFields);
         }
         break;
+      case $RestConfigActions.create:
+        event.target.inData = event.request.body;
+        break;
       default:
         handled = false;
     }
-    console.log('set data for ' + event.target.method, event.target.data);
+    console.log('set data for ' + event.target.method, event.target.inData);
     console.log('set constraints for ' + event.target.method, event.target.constraints);
-  }
+  // }
 
   function setConstraintsFromParams(event, searchableFields) {
     Object.keys(event.target.data).forEach(eachKey => {
@@ -101,10 +102,10 @@ export function onPostroute(
 
   console.log(
     'fetched request data for: ',
-    event.target.entity,
+    event.target.entityName,
     event.target.entityId,
     event.target.handledBy,
-    event.target.data
+    event.target.inData
   );
 
   return event;

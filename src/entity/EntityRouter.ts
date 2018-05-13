@@ -2,23 +2,25 @@ import {NextFunction, Request, Response} from "express-serve-static-core";
 import {PluginManager} from "../plugins/PluginManager";
 import {Observable} from "rxjs/Observable";
 import {EntityConfigRepository} from "../config/repository/EntityConfigRepository";
-import {IEntityRequest, IEntityTarget, IPluginEvent2} from "../plugins/pluginEvent/IPluginEvents";
+import {IEntityRequest, IEntityTarget, IPluginEntityEvent} from "../plugins/pluginEvent/IPluginEntityEvent";
 import {IContext} from "../plugins/IContext";
 import {IPluginErrors} from "../plugins/plugin/IPluginErrors";
 import {ILogger} from "../share/ILogger";
-
+import {SchemaRepository} from "../config/repository/SchemaRepository";
+const _ = require('lodash');
 
 export class EntityRouter {
 
   constructor(
     private pluginManager: PluginManager,
     private entityConfigRepository: EntityConfigRepository,
+    private entitySchemaRepository: SchemaRepository,
     private logger: ILogger = console.log
   ) {}
 
   handle(req: Request, res: Response, next: NextFunction): any {
 
-    let originalEvent = <IPluginEvent2>{
+    let originalEvent = <IPluginEntityEvent>{
       eventName: 'entity.preRoute',
       request: <IEntityRequest>{
         headers: req.headers,
@@ -28,7 +30,6 @@ export class EntityRouter {
         body: req.body
       },
       target: null,
-      oldValue$: null,
       errors: [],
       context: <IContext> {}
     };
@@ -36,88 +37,95 @@ export class EntityRouter {
     let onPreRoute$ = this.pluginManager.withGlobalPlugins$(originalEvent);
     // this.dump(onPreRoute$);
     let onRoute$ = onPreRoute$
-      .map(event => <IPluginEvent2> {
+      .map(event => <IPluginEntityEvent> {
           eventName: 'entity.route',
           request: event.request,
           target: <IEntityTarget>{
             pathParts: event.request.url,
-            entity: null,
+            entityName: null,
             entityId: null,
             entityConfig: null,
             constraints: {},
             method: null,
-            data: null,
+            inData: null,
+            oldValue$: null,
             handledBy: null,
-            result$: Observable.from([null])
           },
-          oldValue$: null,
+          result$: null,
           errors: event.errors,
           context: event.context
       })
-      .map(event => {
-        this.logger('...executing ' + event.eventName);
-        return event;
-      })
+      .map(event => this.logAndReturn(event))
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
     // this.dump(onRoute$, 'onRoute$');
     let onPostroute$ = onRoute$
-      .map(event => <IPluginEvent2> {
+      .map(event => <IPluginEntityEvent> {
         eventName: 'entity.postroute',
         request: event.request,
         target: event.target,
-        oldValue$: event.oldValue$,
+        result$: null,
         errors: event.errors,
         context: event.context
       })
-      .map(event => {
-        this.logger('...executing ' + event.eventName);
-        return event;
-      })
-      .flatMap(event => this.entityConfigRepository.findById(event.target.entity)
+      .map(event => this.logAndReturn(event))
+      .flatMap(event => this.entityConfigRepository.findById(event.target.entityName)
         .map(entityConfig => {
           event.target.entityConfig = entityConfig;
           return event;
         })
         .catch(e => Observable.throw(e))
       )
+      .flatMap(event => this.entitySchemaRepository.findById(event.target.entityConfig.schema)
+        .map(entitySchema => {
+          event.target.entitySchema = entitySchema;
+          return event;
+        })
+        .catch(e => Observable.throw(e))
+      )
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
-      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entity, event))
+      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entityName, event))
     ;
     // this.dump(onPostroute$, 'onPostroute$');
-    let onBefore$ = onPostroute$
-      .map(event => <IPluginEvent2> {
+    let onLoad$ = onPostroute$
+      .map(event => <IPluginEntityEvent> {
+        eventName: 'entity.load',
+        request: event.request,
+        target: event.target,
+        result$: null,
+        errors: event.errors,
+        context: event.context
+      })
+      .map(event => this.logAndReturn(event))
+        .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
+        .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entityName, event));
+    let onBefore$ = onLoad$
+      .map(event => <IPluginEntityEvent> {
         eventName: 'entity.before',
         request: event.request,
         target: event.target,
-        oldValue$: null,
+        result$: Observable.from([null]),
         errors: event.errors,
         context: event.context
       })
-      .map(event => {
-        this.logger('...executing ' + event.eventName);
-        return event;
-      })
+      .map(event => this.logAndReturn(event))
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
-      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entity, event));
+      .flatMap(event => this.pluginManager.withEntityPlugins$(event.target.entityName, event));
     // this.dump(onBefore$, 'onBefore$');
     let onValidate$ = onBefore$
-      .map(event => <IPluginEvent2> {
+      .map(event => <IPluginEntityEvent> {
         eventName: 'entity.validate',
         request: event.request,
         target: event.target,
-        oldValue$: event.oldValue$,
+        result$: event.result$,
         errors: event.errors,
         context: event.context
       })
-      .map(event => {
-        this.logger('...executing ' + event.eventName);
-        return event;
-      })
+      .map(event => this.logAndReturn(event))
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event))
       .map(event => this.throwErrors (event));
     // this.dump(validate$, 'validate$');
     let validated$ = onValidate$
-      .map((event: IPluginEvent2) => {
+      .map((event: IPluginEntityEvent) => {
         if (event.errors.filter(error => error.fatal).length) {
           throw <IPluginErrors>{
             errors: event.errors
@@ -125,23 +133,17 @@ export class EntityRouter {
         }
         return event;
       })
-      .map(event => {
-        this.logger('...executing ' + event.eventName);
-        return event;
-      });
+      .map(event => this.logAndReturn(event));
     let execute$ = validated$
-      .map(event => <IPluginEvent2> {
+      .map(event => <IPluginEntityEvent> {
         eventName: 'entity.execute',
         request: event.request,
         target: event.target,
-        oldValue$: event.oldValue$,
+        result$: event.result$,
         errors: event.errors,
         context: event.context
       })
-      .map(event => {
-        this.logger('...executing ' + event.eventName);
-        return event;
-      })
+      .map(event => this.logAndReturn(event))
       .flatMap(event => this.pluginManager.withGlobalPlugins$(event));
     // this.dump(execute$, 'execute$');
     let final$ = execute$
@@ -153,26 +155,36 @@ export class EntityRouter {
     // this.dump(final$, 'final$');
 
     // map entity config or reference into context
+
     final$.subscribe(
-      (event: IPluginEvent2) => {
+      (event: IPluginEntityEvent) => {
         if (!event.target.handledBy) {
           res.status(404);
           next();
         }
         else {
-          event.target.result$
+          event.result$
             .subscribe(
               result => {
-                if (result.data === null) {
-                  res.status(404);
-                  next();
+                // @todo I shouldn't have to trigger a 404 here, do I? (eg. delete doesn't have result)
+                // if (result.data === null) {
+                //   res.status(404);
+                //   next();
+                //     return;
+                // }
+                const success = !result.status || (result.status == 200);
+                if (result.status) {
+                  res.status(result.status);
+                  delete result.status;
                 }
-                else {
-                  res.send(result);
-                }
+                res.send(_.extend(
+                  { success: success },
+                  result
+                ));
               },
               err => {
                 res.status(500);
+                console.log('happened', err);
                 next();
               }
             )
@@ -180,16 +192,14 @@ export class EntityRouter {
       },
       err => {
         res.status(500);
+        // console.log('happened', err);
         next();
       }
     )
 
-    // stream GET POST etc plugins here
-
-    // console.log('NEXXXXXXXXT');
   }
 
-  private throwErrors(event: IPluginEvent2): IPluginEvent2 {
+  private throwErrors(event: IPluginEntityEvent): IPluginEntityEvent {
     if (event.errors.length > 0) {
       throw event.errors;
     }
@@ -198,10 +208,14 @@ export class EntityRouter {
 
   private dump(o: Observable<any>, msg: string = 'dumping, emitted:') {
     o.subscribe(
-    emitted => console.log(msg, emitted),
-    e => console.log(msg + ' ...ERRR', e),
-    () => console.log(msg + ' ...completed')
+      emitted => console.log(msg, emitted),
+      e => console.log(msg + ' ...ERRR', e),
+      () => console.log(msg + ' ...completed')
     );
+  }
 
+  private logAndReturn(event: IPluginEntityEvent): IPluginEntityEvent {
+    this.logger('...executing ' + event.eventName);
+    return event;
   }
 }

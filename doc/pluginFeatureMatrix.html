@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 4.3.3.2 (Linux)"/>
+	<meta name="created" content="2018-05-12T23:57:12.989703580"/>
+	<meta name="changed" content="2018-05-13T02:01:41.396912572"/>
+	
+	<style type="text/css">
+		body,div,table,thead,tbody,tfoot,tr,th,td,p { font-family:"Liberation Sans"; font-size:x-small }
+	</style>
+	
+</head>
+
+<body>
+<table cellspacing="0" border="0">
+	<colgroup width="85"></colgroup>
+	<colgroup span="8" width="115"></colgroup>
+	<colgroup width="85"></colgroup>
+	<colgroup width="144"></colgroup>
+	<tr>
+		<td height="29" align="left"><br></td>
+		<td align="center">getIndex</td>
+		<td align="center">replaceIndex</td>
+		<td align="center">deleteIndex</td>
+		<td align="center">create</td>
+		<td align="center">get</td>
+		<td align="center">replace</td>
+		<td align="center">update</td>
+		<td align="center">delete</td>
+		<td align="left"><br></td>
+		<td style="border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#66FFFF">nothing to be done</td>
+	</tr>
+	<tr>
+		<td height="29" align="left"><br></td>
+		<td align="left">GET /</td>
+		<td align="left">PUT /</td>
+		<td align="left">DELETE /</td>
+		<td align="left">POST /</td>
+		<td align="left">GET /:id</td>
+		<td align="left">PUT /:id</td>
+		<td align="left">PATCH /:id</td>
+		<td align="left">DELETE /:id</td>
+		<td align="left"><br></td>
+		<td style="border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#B2B2B2">to implement</td>
+	</tr>
+	<tr>
+		<td height="29" align="left"><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=8 align="center" valign=middle bgcolor="#99FF66">request path comes in event.request.url</td>
+		<td align="left"><br></td>
+		<td style="border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#FFFF99">to test</td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onPreroute: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=8 align="center" valign=middle bgcolor="#99FF66">mark trailing slash and strip it</td>
+		<td align="left"><br></td>
+		<td style="border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#FF9999">error KO</td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onRoute: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=4 align="center" valign=middle bgcolor="#99FF66">set method / entity name</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=4 align="center" valign=middle bgcolor="#99FF66">set method / entity name / id</td>
+		<td align="left"><br></td>
+		<td style="border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#99FF66">works OK</td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onPostroute: </td>
+		<td style="border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#66FFFF">-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle bgcolor="#99FF66">request.body =&gt; inData</td>
+		<td style="border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#66FFFF">-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle bgcolor="#99FF66">request.body =&gt; inData</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=4 align="center" valign=middle bgcolor="#99FF66">entityId =&gt; constraints</td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right"><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000" align="center" valign=middle bgcolor="#FFFF99">set filter/search*</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#66FFFF">-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle bgcolor="#FFFF99">set filter/search*</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#66FFFF">-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle>request params=&gt;inData</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=2 align="center" valign=middle>set request.body =&gt; inData</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle>???</td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onLoad: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=3 align="center" valign=middle bgcolor="#FFFF99">load oldValue$ by target.constraints</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#B2B2B2">???</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=4 align="center" valign=middle bgcolor="#FFFF99">load oldValue$ by target.constraints</td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onBefore: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000" rowspan=2 align="center" valign=middle>-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle bgcolor="#66FFFF">-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle>-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle bgcolor="#99FF66">set targetValue$ from inData</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle>-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle bgcolor="#FFFF99">set targetValue$ from inData</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle bgcolor="#B2B2B2">set targetValue$ from oldValue$ and inData</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle bgcolor="#99FF66">-</td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right"><br></td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onValidate: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=8 align="center" valign=middle bgcolor="#B2B2B2">???</td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onExecute: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle bgcolor="#FFFF99">extend result$ by oldValue$</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle bgcolor="#B2B2B2"><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000" align="center" valign=middle bgcolor="#B2B2B2"><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" rowspan=2 align="center" valign=middle bgcolor="#99FF66">create by targetValue$, extend result$</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle><br></td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right"><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="left"><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="left"><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle><br></td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onAfter: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle bgcolor="#99FF66">-</td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000" align="center" valign=middle><br></td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-right: 1px solid #000000" align="center" valign=middle><br></td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+	<tr>
+		<td height="29" align="right">onFinish: </td>
+		<td style="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" colspan=8 align="center" valign=middle bgcolor="#66FFFF"><br></td>
+		<td align="left"><br></td>
+		<td align="center" valign=middle><br></td>
+	</tr>
+</table>
+</body>
+
+</html>

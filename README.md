@@ -106,20 +106,22 @@ entity.postroute
 - after this step, the route matching should be final, except for special cases 
 when the matched route fails or has to be changed based on loaded data. 
 - eg. the versioning plugin mentioned before should add constraints in this step
--beginning with this step, entity plugins are invoked too
+- eg set constraint based on language defetrmined before
+- eg. a special case would be a PUT to a resource with ID, which should be a 
+replace. However, if it does not exist, it becomes a create in the next step.
+- beginning with this step, entity plugins are invoked too
+
+entity.load
+-------------
+
+- field: oldValue$
+- map loading current version into event.oldValue$. This will be needed in most
+cases, for validation op update etc, and for GET to return it later
 
 entity.before
 -------------
 
-- field: oldValue$
-- after a request is routed, set specific params for execution, or prepare data
-- load current version into context.currentData. This will be needed in most
-cases, for validation, or GET can return it directly later
-- eg. a special case would be a PUT to a resource with ID, which should be a 
-replace. However, if it does not exist, it becomes a create in the next step.
-- eg. a get or patch to a non existing ID can be found here and should rather 
-go to a 404
-// - eg set db retrieve params based on language
+- assemble target data for validation
 // - eg set timestamps for updates or creates
 
 entity.validate
@@ -282,8 +284,14 @@ http://localhost:4200/myEntity/12345 (get, put, patch, delete)
 
 180405 03:22 first successful GET /rest/test/ answer
 
+limitations
+===========
+- entity plugin configs cannot overwrite global ones
+- entity must use _id field as id in mongo (a plugin might implement pseudo IDs, eg composite of 2 concatenated fields)
+
 @TODO
 =====
 
 $restPlugin
-	numeric _id (has to be parseFloat'ed before sending to DB)
+- numeric _id (has to be parseFloat'ed before sending to DB)
+- enable GET search by parameters, plugin should whitelist fields

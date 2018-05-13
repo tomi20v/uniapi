@@ -1,14 +1,14 @@
 import {EntityError} from "../../../../entity/EntityError";
-import {IPluginEvent2} from "../../../pluginEvent/IPluginEvents";
+import {IPluginEntityEvent} from "../../../pluginEvent/IPluginEntityEvent";
 
 export function onRoute(
-  event: IPluginEvent2
-): IPluginEvent2 {
+  event: IPluginEntityEvent
+): IPluginEntityEvent {
   const pattern = /^\/([a-zA-Z][a-zA-Z\_0-9]*)(\/.+)?$/;
   const pattern2 = /^\/([a-zA-Z\_0-9\$]+)(\/.+)?$/;
   let entityResult = pattern.exec(event.target.pathParts);
   if (entityResult !== null) {
-    event.target.entity = entityResult[1];
+    event.target.entityName = entityResult[1];
     event.target.pathParts = entityResult[2] || '';
     let idResult = pattern2.exec(event.target.pathParts);
     if (idResult !== null) {
@@ -67,6 +67,6 @@ export function onRoute(
     }
   }
 
-  console.log('set entity, id, method: ', event.target.entity, event.target.entityId, event.target.method);
+  console.log('set entity, id, method: ', event.target.entityName, event.target.entityId, event.target.method);
   return event;
 }

@@ -4,15 +4,20 @@ import {AbstractSchema} from "../../../model/AbstractSchema";
 import {$TimestampConfigInterface} from "./$TimestampConfigInterface";
 import {APlugin} from "../../plugin/APlugin";
 import {EntityRepositoryManager} from "../../../entity/EntityRepositoryManager";
+import {IPluginEntityEvent} from "../../pluginEvent/IPluginEntityEvent";
 
 export class $TimestampPlugin extends APlugin implements IPlugin {
 
   readonly id = '$timestamp';
 
+  /**
+   * NOTE these events are not used ATM...?
+   */
   readonly handlers: IPluginHandlerDefinition[] = [
-    { pattern: /^schema\.compile$/, callback: this.addFieldsToSchema},
-    { pattern: /\.created$/, callback: this.setStamps},
-    { pattern: /\.changed$/, callback: this.setStamps},
+    // { pattern: /^schema\.compile$/, callback: this.addFieldsToSchema},
+    // { pattern: /\.created$/, callback: this.setStamps},
+    // { pattern: /\.changed$/, callback: this.setStamps},
+    { pattern: /entity\.before$/, callback: this.setStamps},
   ];
 
   private readonly FORMAT_TIMESTAMP = 'timestamp';
@@ -23,11 +28,6 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
     protected entityRepositoryManager: EntityRepositoryManager
   ) {
     super(config, configHash, entityRepositoryManager);
-  }
-
-  public happened(event: IPluginEvent<any,any>) {
-    // console.log('it happened in $timestamp plugin', event.eventName);
-    return event;
   }
 
   public addFieldsToSchema(
@@ -46,15 +46,15 @@ export class $TimestampPlugin extends APlugin implements IPlugin {
   }
 
   public setStamps(
-    event: IPluginEvent<any,null>
-  ): IPluginEvent<any,null> {
-    let entity: any = event.value;
-    if (this.config.onCreate && !entity[this.config.onCreateField]) {
-      entity[this.config.onCreateField] = this.stampByFormat(this.config.format);
-    }
-    if (this.config.onUpdate) {
-      entity[this.config.onUpdateField] = this.stampByFormat(this.config.format);
-    }
+    event: IPluginEntityEvent
+  ): IPluginEntityEvent {
+    // let entity: any = event.target.data;
+    // if (this.config.onCreate && !entity[this.config.onCreateField]) {
+    //   entity[this.config.onCreateField] = this.stampByFormat(this.config.format);
+    // }
+    // if (this.config.onUpdate) {
+    //   entity[this.config.onUpdateField] = this.stampByFormat(this.config.format);
+    // }
     return event;
   }
 

@@ -1,9 +1,9 @@
 import {$RestConfigActions} from "../$RestConfigInterface";
-import {IPluginEvent2} from "../../../pluginEvent/IPluginEvents";
+import {IPluginEntityEvent} from "../../../pluginEvent/IPluginEntityEvent";
 
 export function onAfter(
-  event: IPluginEvent2
-): IPluginEvent2 {
+  event: IPluginEntityEvent
+): IPluginEntityEvent {
   if (event.target.handledBy !== this.id) {
   }
   switch (event.target.method) {

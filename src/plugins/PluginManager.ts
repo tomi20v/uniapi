@@ -4,7 +4,7 @@ import {Observable} from "rxjs/Rx";
 import {IInitDb} from "./initDb/IInitDb";
 import {EntityConfigRepository} from "../config/repository/EntityConfigRepository";
 import {EntityConfig} from "../config/model/EntityConfig";
-import {IPluginEvent2} from "./pluginEvent/IPluginEvents";
+import {IPluginEntityEvent} from "./pluginEvent/IPluginEntityEvent";
 import {EntityRepositoryManager} from "../entity/EntityRepositoryManager";
 
 export class PluginManager {
@@ -43,7 +43,7 @@ export class PluginManager {
   }
 
   // withGlobalPlugins$(event: IPluginEvent<any, any>) {
-  withGlobalPlugins$(event: IPluginEvent2): Observable<IPluginEvent2> {
+  withGlobalPlugins$(event: IPluginEntityEvent): Observable<IPluginEntityEvent> {
     if (!this.globalPlugins.length) {
       throw 'No global plugins loaded';
     }
@@ -53,7 +53,7 @@ export class PluginManager {
       .last();
   }
 
-  withEntityPlugins$(entityId, event: IPluginEvent2): Observable<IPluginEvent2> {
+  withEntityPlugins$(entityId, event: IPluginEntityEvent): Observable<IPluginEntityEvent> {
     // get entity by id. note entityId might be empty if the routing regexp hasn't been matched
     return this.entityConfigRepository.findById(entityId)
     // get entity's pluginconfigs
@@ -76,8 +76,7 @@ export class PluginManager {
 
   private invokeHandle(
     plugin: IPlugin,
-    // event: IPluginEvent<any, any>
-    event: IPluginEvent2
+    event: IPluginEntityEvent
   ) {
     plugin.handlers.forEach(
       (def: IPluginHandlerDefinition) => {

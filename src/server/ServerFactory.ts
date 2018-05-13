@@ -55,7 +55,8 @@ export class ServerFactory {
       configRouter.router,
       new EntityRouter(
         pluginManager,
-        repositoryFactory.entityConfigRepository()
+        repositoryFactory.entityConfigRepository(),
+        repositoryFactory.entitySchemaRepository()
       )
     );
   }

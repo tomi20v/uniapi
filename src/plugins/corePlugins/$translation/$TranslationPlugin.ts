@@ -1,6 +1,6 @@
 import {APlugin} from "../../plugin/APlugin";
 import {IPluginHandlerDefinition} from "../../plugin/IPlugin";
-import {IPluginEvent2} from "../../pluginEvent/IPluginEvents";
+import {IPluginEntityEvent} from "../../pluginEvent/IPluginEntityEvent";
 import {EntityRepositoryManager} from "../../../entity/EntityRepositoryManager";
 
 export class $TranslationPlugin extends APlugin {
@@ -23,8 +23,8 @@ export class $TranslationPlugin extends APlugin {
   }
 
   private onEntityPreRoute(
-    event: IPluginEvent2
-  ): IPluginEvent2 {
+    event: IPluginEntityEvent
+  ): IPluginEntityEvent {
     if (this.config.requestLanguageOn == 'urlPart') {
       this.setRequestLangaugeFromUrl(event);
     }
@@ -35,7 +35,7 @@ export class $TranslationPlugin extends APlugin {
   }
 
   private setRequestLangaugeFromUrl(
-    event: IPluginEvent2
+    event: IPluginEntityEvent
   ) {
     const pattern = /^(\/[a-z]{2})\/.+$/;
     const lang = pattern.exec(event.target.pathParts);
@@ -46,7 +46,7 @@ export class $TranslationPlugin extends APlugin {
   }
 
   private setRequestLanguageFromHeaders(
-    event: IPluginEvent2
+    event: IPluginEntityEvent
   ) {
     // @todo implement
     return this.withDefaultLang([]);
